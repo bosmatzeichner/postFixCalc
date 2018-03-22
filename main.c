@@ -89,3 +89,8 @@ void addDigit(char c, struct bignum *number) {
     }
 }
 
+void push(struct bignum *number, struct stack s) {
+    s.firstBignum[s.size]=number;
+    s.size++;
+}
+
