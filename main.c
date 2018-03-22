@@ -10,29 +10,29 @@ typedef struct bignum {
 struct stack {
     int size;
     struct bignum* firstBignum[1024];
-    void clear();
-    struct bignum* pop();
-    struct bignum* peak();
     void push(struct bignum * number);
     bool isEmpty();
 };
 
-extern struct bignum* calcMult(long firstNumSize,
+extern void calcMult(long firstNumSize,
                                char* firstNumDigits,
                                long secondNumSize,
                                char* secondNumDigits);
-extern struct bignum* calcDiv(long firstNumSize,
+extern void calcDiv(long firstNumSize,
                                char* firstNumDigits,
                                long secondNumSize,
                                char* secondNumDigits);
-extern struct bignum* calcSum(long firstNumSize,
+extern void calcSum(long firstNumSize,
                                char* firstNumDigits,
                                long secondNumSize,
                                char* secondNumDigits);
-extern struct bignum* calcSub(long firstNumSize,
+extern void calcSub(long firstNumSize,
                                char* firstNumDigits,
                                long secondNumSize,
                                char* secondNumDigits);
+extern void execute_p();
+extern void execute_c();
+
 enum state{number,notNumber};
 int main() {
     struct bignum* currbignum;
