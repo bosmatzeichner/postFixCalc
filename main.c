@@ -35,7 +35,7 @@ int main() {
             case number:
                 switch (c) {
                     case '0'...'9':
-                        addDigit('c',stack);
+                        addDigit('c',currbignum);
                         break;
                     default:
                         state = notNumber;
@@ -63,8 +63,10 @@ int main() {
                         execute_c();
                         break;
                     case '0'...'9':
+                    case '_':
                         addDigit('c'.stack);
                         currState=number;
+
 
 
                 }
