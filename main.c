@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <malloc.h>
-
 #define MAX_SIZE 20
 typedef struct bignum {
     long numberOfDigits;
@@ -18,29 +16,59 @@ struct stack {
 void push(struct bignum * number, struct stack s);
 
 
-extern void calcMult(long firstNumSize,
-                               char* firstNumDigits,
-                               long secondNumSize,
-                               char* secondNumDigits);
-extern void calcDiv(long firstNumSize,
-                               char* firstNumDigits,
-                               long secondNumSize,
-                               char* secondNumDigits);
-extern void calcSum(long firstNumSize,
-                               char* firstNumDigits,
-                               long secondNumSize,
-                               char* secondNumDigits);
-extern void calcSub(long firstNumSize,
-                               char* firstNumDigits,
-                               long secondNumSize,
-                               char* secondNumDigits);
+extern void calcMult(&stack);
+extern void calcDiv(&stack);
+extern void calcSum(&stack);
+extern void calcSub(&stack);
 extern void execute_p();
 extern void execute_c();
 
 enum state{number,notNumber};
 int main() {
     struct bignum* currbignum;
-    enum state currState=notNumber;
+    enum state currState=number;
+    long capacity=MAX_SIZE;
+    struct stack stack;
+    stack.size=0;
+    while((c=fgetc(stdin))!='q'){
+        switch (currState){
+            case number:
+                switch (c) {
+                    case '0'...'9':
+                        addDigit('c',stack);
+                        break;
+                    default:
+                        state = notNumber;
+                        break;
+                }
+
+            case notNumber:
+                switch (c) {
+                    case '*':
+                        calcMult(stack);
+                        break;
+                    case '/':
+                        calcDiv(stack);
+                        break;
+                    case '+':
+                        calcSum(stack);
+                        break;
+                    case '-':
+                        calcSub(stack);
+                        break;
+                    case 'p':
+                        execute_p();
+                        break;
+                    case 'c':
+                        execute_c();
+                        break;
+                    case '0'...'9':
+                        addDigit('c'.stack);
+                        currState=number;
+
+
+                }
+    }
 
     printf("Hello, World!\n");
     return 0;
