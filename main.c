@@ -16,10 +16,10 @@ struct stack {
 void push(struct bignum * number, struct stack s);
 
 
-extern void calcMult(&stack);
-extern void calcDiv(&stack);
-extern void calcSum(&stack);
-extern void calcSub(&stack);
+extern void calcMult(stack);
+extern void calcDiv(stack);
+extern void calcSum(stack);
+extern void calcSub(stack* s);
 extern void execute_p();
 extern void execute_c();
 
@@ -38,10 +38,10 @@ int main() {
                         addDigit('c',currbignum);
                         break;
                     default:
-                        state = notNumber;
+                        push(currbignum,stack);
+                        currState = notNumber;
                         break;
                 }
-
             case notNumber:
                 switch (c) {
                     case '*':
@@ -64,11 +64,13 @@ int main() {
                         break;
                     case '0'...'9':
                     case '_':
-                        addDigit('c'.stack);
+                        struct bignum* newNum;
+                        currbignum=newNum;
+                        addDigit(c,currbignum);
                         currState=number;
-
-
-
+                        break;
+                    default:
+                        break;
                 }
     }
 
