@@ -1,18 +1,22 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <malloc.h>
+
 #define MAX_SIZE 20
 typedef struct bignum {
     long numberOfDigits;
     char* digit;
 };
-struct bignum* addDigit(char c, struct stack);
+
+void addDigit(char c, struct bignum* number);
+long capacity=MAX_SIZE;
 
 struct stack {
     int size;
     struct bignum* firstBignum[1024];
-    void push(struct bignum * number);
-    bool isEmpty();
 };
+void push(struct bignum * number, struct stack s);
+
 
 extern void calcMult(long firstNumSize,
                                char* firstNumDigits,
@@ -37,8 +41,23 @@ enum state{number,notNumber};
 int main() {
     struct bignum* currbignum;
     enum state currState=notNumber;
-    long capacity=MAX_SIZE;
 
     printf("Hello, World!\n");
     return 0;
 }
+
+void addDigit(char c, struct bignum *number) {
+    number->digit[number->numberOfDigits]=c;
+    number->numberOfDigits++;
+    if(number->numberOfDigits==capacity){
+        capacity=capacity+MAX_SIZE;
+        char* newNumber;
+        newNumber=(char*) malloc(sizeof(char)*capacity);
+        char*j= newNumber;
+        for(char* i=number->digit; i < number->digit + number->numberOfDigits; i++,j++){
+            *j=*i;
+        }
+        number->digit=newNumber;
+    }
+}
+
