@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdbool.h>
+#define MAX_SIZE 20
 typedef struct bignum {
-    long capacity;
     long numberOfDigits;
     char* digit;
-    struct bignum* addDigit(char c);
 };
+struct bignum* addDigit(char c, struct stack);
 
 struct stack {
     int size;
@@ -37,6 +37,7 @@ enum state{number,notNumber};
 int main() {
     struct bignum* currbignum;
     enum state currState=notNumber;
+    long capacity=MAX_SIZE;
 
     printf("Hello, World!\n");
     return 0;
