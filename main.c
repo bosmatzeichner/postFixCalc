@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <malloc.h>
-
+#include <limits.h>
+#include <stdbool.h>
 #define MAX_SIZE 20
 typedef struct bignum {
     long capacity;
@@ -8,6 +9,28 @@ typedef struct bignum {
     char* digit;
 };
 
+long convertToArray[](struct bignum* number){
+    bool isNegative = number->digit[0]=='_';
+    if (isNegative)
+        number->digit=number->digit+1;
+    long size = number->numberOfDigits/9+1;
+    long* answer=malloc(sizeof(long)*size);
+    long count=0;
+    long acc;
+    long index=0;
+    while (count<size){
+        acc=0;
+        for(int i=0;i<9;i++,index++){
+            acc = acc * 10 + (number->digit[index] - '0');
+        }
+        answer[count]=acc;
+        if (isNegative)
+            answer[count]=answer[count]*(-1);
+        count++;
+    }
+    return answer;
+
+}
 void addDigit(char c, struct bignum* number);
 
 struct stack {
@@ -32,7 +55,25 @@ void calcDiv(struct stack *s) {
 
 extern void calcSum(struct stack* s);//TODO remove
 void calcSum(struct stack *s) {
-    printf("caculating addition on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
+    struct bignum *first= s->firstBignum[s->size-2];
+    struct bignum *second= s->firstBignum[s->size-1];
+    long firstOriginalSize=first->numberOfDigits;
+    long secondOriginalSize = second->numberOfDigits;
+    long firstNewSize = firstOriginalSize/8+1;
+    long secondNewSize = secondOriginalSize/8+1;
+    long max;
+    long min;
+    if(firstNewSize<secondNewSize){
+        max = secondNewSize;
+        min = firstOriginalSize;
+    }
+    else{
+        max = firstNewSize;
+        min= secondNewSize;
+    }
+    long result[max =1];
+    long carry;
+
 }
 
 
@@ -59,6 +100,10 @@ void execute_c() {//TODO remove
 }
 enum state{number,notNumber};
 int main() {
+    printf("max long size is: %ld\n min long size is: %ld\n",LONG_MAX,LONG_MIN);
+    printf("max int size is: %d\n min int size is: %d\n",INT_MAX,INT_MIN);
+    printf("size of long is %ld",(unsigned long) sizeof(int));
+
     struct bignum* currbignum;
     enum state currState = notNumber;
     struct stack *stack= malloc(sizeof(stack));
