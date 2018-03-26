@@ -44,6 +44,38 @@ extern void calcMult(struct stack* s);
 
 void calcMult(struct stack *s) {//TODO remove
     printf("caculating mult on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
+    int carry;
+    struct bignum* resBignum;
+
+    struct bignum* bignum1= s->firstBignum[s->size-1];
+    struct bignum* bignum2= s->firstBignum[s->size-1];
+    long* bignum1Array = convertToArray(bignum1);
+    long* bignum2Array = convertToArray(bignum2);
+    long maxSize = bignum1->numberOfDigits+bignum2->numberOfDigits;
+    long* answer= malloc(sizeof(long)*(maxSize)) ;
+    long minNumDigits= bignum1->numberOfDigits;
+    long maxNumDigits= bignum2->numberOfDigits;
+    long*  multiplyer, multiplied;
+    multiplyer = bignum1Array;
+    multiplied = bignum2Array;
+    if (bignum1->numberOfDigits > bignum2->numberOfDigits) {
+        maxNumDigits= bignum1->numberOfDigits;
+        minNumDigits = bignum2->numberOfDigits;
+        multiplied = bignum1Array;
+        multiplyer = bignum2Array;
+    }
+    char* newNumber1=(char*) malloc(sizeof(char)*(resBignum->capacity));
+    char* newNumber2=(char*) malloc(sizeof(char)*(resBignum->capacity));
+    //
+    for (long i =0; i<maxSize ; i++ ){
+
+        //multiply every 2 single digits
+              for(long j=0; j<minNumDigits; j++){
+                  mylong = multiplied[i]
+              }
+
+
+    }
 }
 
 extern void calcDiv(struct stack* s);//TODO remove
