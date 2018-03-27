@@ -8,25 +8,87 @@ typedef struct bignum {
     long numberOfDigits;
     char* digit;
 };
+long getLongValue(const char* digits, long end, long begin){
+    long ans=0;
+    for(;begin<=end;begin++){
+        ans = ans*10 + (digits[begin]-'0');
+    }
+    return ans;
+}
+long getCarry(long number){
+    if (number>999999999||number<-999999999){
+        for(int i=0;i<9;i++){
+            number=number/10;
+        }
+        return number;
+    }
+    return 0;
+}
+long getResult(long carry) {
+    long j = carry;
+    for (int i=0; i < 9; i++) {
+        j = j * 10;
+    }
+//        else if(j<0)
+    return j;
+}
 
-long convertToArray[](struct bignum* number){
+long *addingTwoArrays(const long first[], const long second[], long firstLength, long secondLength) {
+    long max = firstLength;
+    long min=secondLength;
+    if (firstLength<secondLength) {
+        max = secondLength;
+        min = firstLength;
+    }
+    long carry=0;
+    long *result = malloc(sizeof(long)*(max+1));
+    for(long i=0;i<min;i++){
+        result[i]=first[i]+second[i]+carry;
+        carry=getCarry(result[i]);
+        if(carry>0)
+            result[i] =result[i]  - getResult(carry);//setting result[i] to be the actual result it should have
+
+    }
+    if(firstLength==min){
+        for(;min<=max;min++){
+            result[min]=second[min]+carry;
+            carry = getCarry(result[min]);
+            if(carry>0) {
+                result[min] = result[min]-getResult(carry)  ;//setting result[i] to be the actual result it should have
+            }
+        }
+        result[max]=carry;
+    }
+    else{
+        for(;min<max;min++){
+            result[min]=first[min]+carry;
+            carry = getCarry(result[min]);
+            if(carry>0) {
+                result[min] = result[min] - getResult(carry);//setting result[i] to be the actual result it should have
+            }
+        }
+        result[max]=carry;
+    }
+    return result;
+
+}
+
+
+long *convertToArray(struct bignum* number){
     bool isNegative = number->digit[0]=='_';
     if (isNegative)
         number->digit=number->digit+1;
-    long size = number->numberOfDigits/9+1;
-    long* answer=malloc(sizeof(long)*size);
-    long count=0;
-    long acc;
-    long index=0;
-    while (count<size){
-        acc=0;
-        for(int i=0;i<9;i++,index++){
-            acc = acc * 10 + (number->digit[index] - '0');
-        }
-        answer[count]=acc;
+    long size = number->numberOfDigits/9;
+    long* answer=malloc(sizeof(long)*(size+1));
+    long beginningOfLong=number->numberOfDigits-1;
+    long endOfLong=beginningOfLong-8;
+    for(long j=0;j<size+1;j++,beginningOfLong-=9,endOfLong-=9){
+        if(endOfLong<0)
+            answer[j]=getLongValue(number->digit, beginningOfLong,0);
+        else
+            answer[j]=getLongValue(number->digit, beginningOfLong,endOfLong);
         if (isNegative)
-            answer[count]=answer[count]*(-1);
-        count++;
+            answer[j]=answer[j]*(-1);
     }
     return answer;
 
@@ -82,35 +144,46 @@ extern void calcDiv(struct stack* s);//TODO remove
 void calcDiv(struct stack *s) {
     printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 }
+struct bignum* convertTObignum(long array[],long size){
+    struct bignum* num=malloc(sizeof(*num));
+    num->digit = malloc(sizeof(char)*size*9+1);
+    num->capacity = size*9+1;
+    num->numberOfDigits=size*9+1;
+    char* temp= num->digit;
+    for (long i=0;i<size;i++,temp+=9) {
+        sprintf(temp, "%09ld", array[size-1-i]);
+    }
+    num->digit[size*9]='\0';
+    long i=0;
+    for(;i<size*9&&num->digit[i]=='0';i++){}
+    num->digit= (char *) num->digit+i;
+    return num;
 
+}
 
 
 extern void calcSum(struct stack* s);//TODO remove
 void calcSum(struct stack *s) {
     struct bignum *first= s->firstBignum[s->size-2];
     struct bignum *second= s->firstBignum[s->size-1];
-    long firstOriginalSize=first->numberOfDigits;
-    long secondOriginalSize = second->numberOfDigits;
-    long firstNewSize = firstOriginalSize/8+1;
-    long secondNewSize = secondOriginalSize/8+1;
-    long max;
-    long min;
-    if(firstNewSize<secondNewSize){
+    long firstNewSize = first->numberOfDigits/9+1;
+    long secondNewSize = second->numberOfDigits/9+1;
+    long max=firstNewSize;
+    long min=secondNewSize;
+    if(firstNewSize<secondNewSize){//if first number size is smaller then the second
         max = secondNewSize;
-        min = firstOriginalSize;
+        min = firstNewSize;
     }
-    else{
-        max = firstNewSize;
-        min= secondNewSize;
-    }
-    long result[max =1];
-    long carry;
+    long *result;
+    result = addingTwoArrays(convertToArray(first), convertToArray(second),firstNewSize,secondNewSize);
+    push(convertTObignum(result,max+1),s);
 
 }
 
 
 
 extern void calcSub(struct stack* s);//TODO remove
+
 void calcSub(struct stack *s) {
     printf("caculating sub on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 
@@ -118,9 +191,9 @@ void calcSub(struct stack *s) {
 
 
 
-extern void execute_p();
-void execute_p() {//TODO remove
-    printf("executing p\n");
+extern void execute_p(struct stack *s);
+void execute_p(struct stack *s) {//TODO remove
+    printf("%s\n",s->firstBignum[s->size-1]->digit);
 }
 
 
@@ -132,10 +205,6 @@ void execute_c() {//TODO remove
 }
 enum state{number,notNumber};
 int main() {
-    printf("max long size is: %ld\n min long size is: %ld\n",LONG_MAX,LONG_MIN);
-    printf("max int size is: %d\n min int size is: %d\n",INT_MAX,INT_MIN);
-    printf("size of long is %ld",(unsigned long) sizeof(int));
-
     struct bignum* currbignum;
     enum state currState = notNumber;
     struct stack *stack= malloc(sizeof(stack));
@@ -169,7 +238,7 @@ int main() {
                         calcSub(stack);
                         break;
                     case 'p':
-                        execute_p();
+                        execute_p(stack);
                         break;
                     case 'c':
                         execute_c();
@@ -189,7 +258,7 @@ int main() {
         }
     }
     printf("exited\n");
-    free(stack);
+//    free(stack);
 }
 
 void addDigit(char c, struct bignum *number) {
