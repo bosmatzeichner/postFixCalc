@@ -100,6 +100,8 @@ struct stack {
     struct bignum* firstBignum[1024];
 };
 void push(struct bignum * number, struct stack* s);
+struct bignum *peek (struct stack *s);
+void pop (struct stack *s);
 
 
 extern void calcMult(struct stack* s);
@@ -123,15 +125,20 @@ void calcMult(struct stack *s) {//TODO remove
         multiplied = multiplyer;
         multiplyer = tmpArray;
     }
-    long* answer = recursiveMult(multiplied , multiplyer, );
+    long* answer = recursiveMult(multiplied , multiplyer, multipliedSize, multiplyerSize);
+
+    if ( (multiplied[0] == -1 && multiplyer[0] == 1) || (multiplied[0] == 1 && multiplyer[0] == -1)  )
+        answer[0] = -1;
+    else
+        answer[0] = 1;
+
     push(convertTObignum(answer,max),s);
     free(multiplied);
     free(multiplyer);
 }
 
-bool isEqualZero(long *a,long aSize ,long *b, long bSize);
+bool isEqualZero(const long *a,long aSize ,const long *b, long bSize);
 bool isEqualOne(long *a,long aSize);
-
 
 long *subTwoArrays(long *toSub, long *substructor, long toSubSize, long substructorSize);
 
@@ -145,12 +152,12 @@ long *recursiveMult(long *multiplied, long *multiplyer, long multipliedSize, lon
     else if (isEqualOne (multiplyer, multiplyerSize))
         return multiplied;
 
-        decrement = malloc(sizeof(long) * (2));
-        decrement[0]= 1;
-        decrement[1]= 1;
-        newMultiplyer = subTwoArrays(multiplyer, decrement, multiplyerSize, 2 );
-        return addingTwoArrays(multiplied, (recursiveMult(multiplied, newMultiplyer, multipliedSize,multiplyerSize), multipliedSize, multiplyerSize );
-
+    decrement = malloc(sizeof(long) * (2));
+    decrement[0]= 1;
+    decrement[1]= 1;
+    newMultiplyer = subTwoArrays(multiplyer, decrement, multiplyerSize, 2 );
+    //thinking how to save memory space by freeing the newMultiplyer pointer
+    return addingTwoArrays(multiplied, recursiveMult(multiplied, newMultiplyer, multipliedSize,multiplyerSize ), multipliedSize, multiplyerSize);
 }
 
 long *subTwoArrays(long *toSub, long *substructor, long toSubSize, long substructorSize) {
@@ -170,7 +177,7 @@ bool isEqualZero(const long *a, long aSize, const long *b, long bSize) {
         if (b[j]!=0)
             con = 0;
     }
-    return con;
+    return con==1;
 }
 bool isEqualOne(long *a, long aSize) {
     int con = 1;
@@ -180,7 +187,7 @@ bool isEqualOne(long *a, long aSize) {
         if (a[i] != 0)
             con = 0;
     }
-    return con;
+    return con==1;
 }
 extern void calcDiv(struct stack* s);//TODO remove
 void calcDiv(struct stack *s) {
@@ -203,7 +210,6 @@ struct bignum* convertTObignum(long array[],long size){
 
 }
 
-
 extern void calcSum(struct stack* s);//TODO remove
 void calcSum(struct stack *s) {
     struct bignum *first= s->firstBignum[s->size-2];
@@ -222,23 +228,16 @@ void calcSum(struct stack *s) {
 
 }
 
-
-
 extern void calcSub(struct stack* s);//TODO remove
-
 void calcSub(struct stack *s) {
     printf("caculating sub on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 
 }
 
-
-
 extern void execute_p(struct stack *s);
 void execute_p(struct stack *s) {//TODO remove
     printf("%s\n",s->firstBignum[s->size-1]->digit);
 }
-
-
 
 extern void execute_c();
 void execute_c() {//TODO remove
@@ -246,6 +245,7 @@ void execute_c() {//TODO remove
 
 }
 enum state{number,notNumber};
+
 int main() {
     struct bignum* currbignum;
     enum state currState = notNumber;
@@ -323,4 +323,17 @@ void push(struct bignum *number, struct stack *s) {
     s->firstBignum[s->size] = number;
     s->size++;
 }
+
+struct bignum *peek(struct stack * s) {
+    struct bignum *peeked = s->firstBignum[s->size-1];
+    return peeked;
+}
+
+void pop(struct stack *s) {
+      struct bignum *poped = peek(s);
+     s->size --;
+     free(poped);
+}
+
+
 
