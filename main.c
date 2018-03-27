@@ -104,42 +104,84 @@ void push(struct bignum * number, struct stack* s);
 
 extern void calcMult(struct stack* s);
 
+long *recursiveMult(long *multiplied, long *multiplyer, long multipliedSize, long multiplyerSize);
+
 void calcMult(struct stack *s) {//TODO remove
-    printf("caculating mult on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
-    int carry;
-    struct bignum* resBignum;
+    struct bignum* first= s->firstBignum[s->size-1];
+    struct bignum* second= s->firstBignum[s->size-2];
+    long* multiplyer = convertToArray(first);
+    long* multiplied = convertToArray(second);
+    long multiplyerSize= first->numberOfDigits/9 + 1;
+    long multipliedSize= second->numberOfDigits/9 + 1;
+    long max = multiplyerSize + multipliedSize;
 
-    struct bignum* bignum1= s->firstBignum[s->size-1];
-    struct bignum* bignum2= s->firstBignum[s->size-1];
-    long* bignum1Array = convertToArray(bignum1);
-    long* bignum2Array = convertToArray(bignum2);
-    long maxSize = bignum1->numberOfDigits+bignum2->numberOfDigits;
-    long* answer= malloc(sizeof(long)*(maxSize)) ;
-    long minNumDigits= bignum1->numberOfDigits;
-    long maxNumDigits= bignum2->numberOfDigits;
-    long*  multiplyer, multiplied;
-    multiplyer = bignum1Array;
-    multiplied = bignum2Array;
-    if (bignum1->numberOfDigits > bignum2->numberOfDigits) {
-        maxNumDigits= bignum1->numberOfDigits;
-        minNumDigits = bignum2->numberOfDigits;
-        multiplied = bignum1Array;
-        multiplyer = bignum2Array;
+    if (isGE(multiplyer + 1, multiplyer + 1, multiplyerSize, multipliedSize)) {
+        long tmp = multipliedSize;
+        multipliedSize= multiplyerSize;
+        multiplyerSize = tmp;
+        long* tmpArray = multiplied;
+        multiplied = multiplyer;
+        multiplyer = tmpArray;
     }
-    char* newNumber1=(char*) malloc(sizeof(char)*(resBignum->capacity));
-    char* newNumber2=(char*) malloc(sizeof(char)*(resBignum->capacity));
-    //
-    for (long i =0; i<maxSize ; i++ ){
-
-        //multiply every 2 single digits
-              for(long j=0; j<minNumDigits; j++){
-                  mylong = multiplied[i]
-              }
-
-
-    }
+    long* answer = recursiveMult(multiplied , multiplyer, );
+    push(convertTObignum(answer,max),s);
+    free(multiplied);
+    free(multiplyer);
 }
 
+bool isEqualZero(long *a,long aSize ,long *b, long bSize);
+bool isEqualOne(long *a,long aSize);
+
+
+long *subTwoArrays(long *toSub, long *substructor, long toSubSize, long substructorSize);
+
+long *recursiveMult(long *multiplied, long *multiplyer, long multipliedSize, long multiplyerSize) {
+    long* decrement;
+    long * newMultiplyer;
+    if (isEqualZero (multiplied, multipliedSize, multiplyer, multiplyerSize))
+        return (long*)malloc(sizeof(long)*(2)) ;
+    else if (isEqualOne(multiplied, multipliedSize) )
+        return multiplyer;
+    else if (isEqualOne (multiplyer, multiplyerSize))
+        return multiplied;
+
+        decrement = malloc(sizeof(long) * (2));
+        decrement[0]= 1;
+        decrement[1]= 1;
+        newMultiplyer = subTwoArrays(multiplyer, decrement, multiplyerSize, 2 );
+        return addingTwoArrays(multiplied, (recursiveMult(multiplied, newMultiplyer, multipliedSize,multiplyerSize), multipliedSize, multiplyerSize );
+
+}
+
+long *subTwoArrays(long *toSub, long *substructor, long toSubSize, long substructorSize) {
+    return NULL;
+}
+
+bool isEqualZero(const long *a, long aSize, const long *b, long bSize) {
+    int con = 1;
+    for (long i = 1; con && i < aSize-1; i++ ){
+        if (a[i] != 0)
+            con = 0;
+    }
+    if (con)
+        return true;
+    con=1;
+    for (long j = 1; con && j < bSize - 1; j++ ){
+        if (b[j]!=0)
+            con = 0;
+    }
+    return con;
+}
+bool isEqualOne(long *a, long aSize) {
+    int con = 1;
+    if (a[1] != 1)
+        con = 0;
+    for (long i = 2; con && i < aSize-2; i++ ){
+        if (a[i] != 0)
+            con = 0;
+    }
+    return con;
+}
 extern void calcDiv(struct stack* s);//TODO remove
 void calcDiv(struct stack *s) {
     printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
