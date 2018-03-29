@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <string.h>
+#include "main.h"
 
 #define MAX_SIZE 20
 typedef struct bignum {
@@ -150,42 +151,42 @@ struct stack {
     int size;
     struct bignum* firstBignum[1024];
 };
-void push(struct bignum * number, struct stack* s);
+void push(struct bignum *number, struct stack* s);
 struct bignum *peek (struct stack *s);
 struct bignum *pop (struct stack *s);
 
 
 extern void calcMult(struct stack* s);
-
-long *recursiveMult(long *multiplied, long *multiplyer, long multipliedSize, long multiplyerSize);
+long *recursiveMult2(long **twoDimArray, long shiftL, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
+long *recursiveMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
 
 void calcMult(struct stack *s) {//TODO remove
     struct bignum* first= s->firstBignum[s->size-1];
     struct bignum* second= s->firstBignum[s->size-2];
-    long* multiplyer = convertToArray(first);
+    long* multiplier = convertToArray(first);
     long* multiplied = convertToArray(second);
-    long multiplyerSize= first->numberOfDigits/9 + 1;
+    long multiplierSize= first->numberOfDigits/9 + 1;
     long multipliedSize= second->numberOfDigits/9 + 1;
-    long max = multiplyerSize + multipliedSize;
-
-    if (isGE(multiplyer + 1, multiplyer + 1, multiplyerSize, multipliedSize)) {
+    long max = multiplierSize + multipliedSize;
+//check greater or equal to decide
+    if (isGE(multiplier + 1, multiplier + 1, multiplierSize, multipliedSize)) {
         long tmp = multipliedSize;
-        multipliedSize= multiplyerSize;
-        multiplyerSize = tmp;
+        multipliedSize= multiplierSize;
+        multiplierSize = tmp;
         long* tmpArray = multiplied;
-        multiplied = multiplyer;
-        multiplyer = tmpArray;
+        multiplied = multiplier;
+        multiplier = tmpArray;
     }
-    long* answer = recursiveMult(multiplied , multiplyer, multipliedSize, multiplyerSize);
+    long* answer = recursiveMult(multiplied , multiplier, multipliedSize, multiplierSize);
 
-    if ( (multiplied[0] == -1 && multiplyer[0] == 1) || (multiplied[0] == 1 && multiplyer[0] == -1)  )
+    if ( (multiplied[0] == -1 && multiplier[0] == 1) || (multiplied[0] == 1 && multiplier[0] == -1)  )
         answer[0] = -1;
     else
         answer[0] = 1;
 
     push(convertTObignum(answer,max),s);
     free(multiplied);
-    free(multiplyer);
+    free(multiplier);
 }
 
 bool isEqualZero(const long *a,long aSize ,const long *b, long bSize);
@@ -193,22 +194,22 @@ bool isEqualOne(const long *a,long aSize);
 
 long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize);
 
-long *recursiveMult(long *multiplied, long *multiplyer, long multipliedSize, long multiplyerSize) {
+long *recursiveMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize) {
     long* decrement;
-    long * newMultiplyer;
-    if (isEqualZero (multiplied, multipliedSize, multiplyer, multiplyerSize))
+    long * newmultiplier;
+    if (isEqualZero (multiplied, multipliedSize, multiplier, multiplierSize))
         return (long*)malloc(sizeof(long)*(2)) ;
     else if (isEqualOne(multiplied, multipliedSize) )
-        return multiplyer;
-    else if (isEqualOne (multiplyer, multiplyerSize))
+        return multiplier;
+    else if (isEqualOne (multiplier, multiplierSize))
         return multiplied;
 
     decrement = malloc(sizeof(long) * (2));
     decrement[0]= 1;
     decrement[1]= 1;
-    newMultiplyer = subTwoArrays(multiplyer, decrement, multiplyerSize, 2 );
-    //thinking how to save memory space by freeing the newMultiplyer pointer
-    return addingTwoArrays(multiplied, recursiveMult(multiplied, newMultiplyer, multipliedSize,multiplyerSize ), multipliedSize, multiplyerSize);
+    newmultiplier = subTwoArrays(multiplier, decrement, multiplierSize, 2 );
+    //thinking how to save memory space by freeing the newmultiplier pointer
+    return addingTwoArrays(multiplied, recursiveMult(multiplied, newmultiplier, multipliedSize,multiplierSize ), multipliedSize, multiplierSize);
 }
 
 long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize) {
