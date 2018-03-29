@@ -10,6 +10,30 @@ typedef struct bignum {
     long numberOfDigits;
     char* digit;
 };
+struct bignum* convertTObignum(long array[],long size){
+    bool isNegative=array[0]==-1;
+    struct bignum* num=malloc(sizeof(*num));
+    num->digit = malloc(sizeof(char)*size*9+2);
+    num->capacity = size*9+2;
+    char* temp= num->digit;
+    num->digit[size*9]='\0';
+    num->digit[0]='0';//saving space for '-' if necessary
+    temp++;
+    for (long i=0;i<size-1;i++,temp+=9) {
+        sprintf(temp, "%09ld", array[size-1-i]);
+    }
+    long i=0;
+    for(;i<size*9&&num->digit[i]=='0';i++){}
+    num->digit= (char *) num->digit+i;
+    if (isNegative){
+        num->digit[-1]='_';
+        num->digit--;
+    }
+    num->numberOfDigits=strlen(num->digit);
+    free(array);
+    return num;
+
+}
 bool isGE(const long* first,const long* second, long firstSize, long secondSize){
     long min=firstSize;
     if(firstSize>secondSize){
@@ -65,24 +89,22 @@ long *addingTwoArrays(const long first[], const long second[], long firstLength,
     }
     long carry=0;
     long *result = malloc(sizeof(long)*(max+1));
-    first++;
-    second++;//TODO remove
     for(long i=0;i<min;i++){
-        result[i]=first[i]+second[i]+carry;
+        result[i+1]=first[i]+second[i]+carry;
         carry=getCarry(result[i]);
         if(carry>0)
             result[i] =result[i]-getResult(carry);//setting result[i] to be the actual result it should have
 
     }
     if(firstLength==min){
-        for(;min<=max;min++){
+        for(;min<max;min++){
             result[min]=second[min]+carry;
             carry = getCarry(result[min]);
             if(carry>0) {
                 result[min] = result[min]-getResult(carry)  ;//setting result[i] to be the actual result it should have
             }
         }
-        result[max]=carry;
+        result[max]=result[max]+carry;
     }
     else{
         for(;min<max;min++){
@@ -118,8 +140,6 @@ long *convertToArray(struct bignum* number){
             answer[j]=getLongValue(number->digit, beginningOfLong,0);
         else
             answer[j]=getLongValue(number->digit, beginningOfLong,endOfLong);
-        if (isNegative)
-            answer[j]=answer[j]*(-1);
     }
     return answer;
 
@@ -132,7 +152,7 @@ struct stack {
 };
 void push(struct bignum * number, struct stack* s);
 struct bignum *peek (struct stack *s);
-void pop (struct stack *s);
+struct bignum *pop (struct stack *s);
 
 
 extern void calcMult(struct stack* s);
@@ -169,11 +189,9 @@ void calcMult(struct stack *s) {//TODO remove
 }
 
 bool isEqualZero(const long *a,long aSize ,const long *b, long bSize);
-bool isEqualOne(long *a,long aSize);
+bool isEqualOne(const long *a,long aSize);
 
-long *subTwoArrays(long *toSub, long *substructor, long toSubSize, long substructorSize);
-
-long *subTwoArrays(long *toSubFrom, long *substructor, long toSubSize, long substructorSize);
+long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize);
 
 long *recursiveMult(long *multiplied, long *multiplyer, long multipliedSize, long multiplyerSize) {
     long* decrement;
@@ -206,8 +224,8 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
         smaller = toSubFrom;
     }
     long* result = malloc(sizeof(long)*max+1);
-
-    for(long i=1;i<max-2;i++){
+    borrow=bigger[0]-smaller[0];
+    for(long i=0;i<max-1;i++){
         if(i<min){
             borrow=bigger[i]-smaller[i];
             if(borrow<0){
@@ -225,8 +243,7 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
             result[i]=borrow;
         }
     }
-    if(borrow>0)
-        result[max-1]=borrow;
+    result[max]=result[max]+borrow;
     return result;
 }
 
@@ -245,7 +262,7 @@ bool isEqualZero(const long *a, long aSize, const long *b, long bSize) {
     }
     return con==1;
 }
-bool isEqualOne(long *a, long aSize) {
+bool isEqualOne(const long *a, long aSize) {
     int con = 1;
     if (a[1] != 1)
         con = 0;
@@ -259,32 +276,12 @@ extern void calcDiv(struct stack* s);//TODO remove
 void calcDiv(struct stack *s) {
     printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 }
-struct bignum* convertTObignum(long array[],long size){
-    bool isNegative=array[0]==-1;
-    struct bignum* num=malloc(sizeof(*num));
-    num->digit = malloc(sizeof(char)*size*9+2);
-    num->capacity = size*9+2;
-    char* temp= num->digit;
-    num->digit[size*9]='\0';
-    if(isNegative){
-        num->digit[0]='_';
-        temp++;
-    }
-    for (long i=0;i<size;i++,temp+=9) {
-        sprintf(temp, "%09ld", array[size-1-i]);
-    }
-    long i=0;
-    for(;i<size*9&&num->digit[i]=='0';i++){}
-    num->digit= (char *) num->digit+i;
-    num->numberOfDigits=strlen(num->digit);
-    return num;
 
-}
 
 extern void calcSum(struct stack* s);//TODO remove
 void calcSum(struct stack *s) {
-    struct bignum *first= s->firstBignum[s->size-2];
-    struct bignum *second= s->firstBignum[s->size-1];
+    struct bignum *first= pop(s);
+    struct bignum *second= pop(s);
     long firstNewSize = first->numberOfDigits/9+1;
     long secondNewSize = second->numberOfDigits/9+1;
     long max=firstNewSize;
@@ -294,7 +291,32 @@ void calcSum(struct stack *s) {
         min = firstNewSize;
     }
     long *result;
-    result = addingTwoArrays(convertToArray(first), convertToArray(second),firstNewSize,secondNewSize);
+    long* firstArray = convertToArray(first);
+    long* secondArray = convertToArray(second);
+    if(firstArray[0]==secondArray[0]) {
+        result = addingTwoArrays(firstArray+1, secondArray+1, firstNewSize, secondNewSize);
+        result[0]=firstArray[0];
+    }
+    else{
+        result = subTwoArrays(firstArray+1,secondArray+1,firstNewSize,secondNewSize);
+        bool firstGreaterOrEqualtoSecond = isGE(firstArray+1,secondArray+1,firstNewSize,secondNewSize);
+        if(firstArray[0]==-1){//if the first is negative
+            if(firstGreaterOrEqualtoSecond)
+                result[0]=-1;
+            else
+                result[0]=1;
+        }
+        else{
+            if(firstGreaterOrEqualtoSecond)
+                result[0]=1;
+            else
+                result[0]=-1;
+        }
+    }
+    free(first);
+    free(second);
+    free(firstArray);
+    free(secondArray);
     push(convertTObignum(result,max+1),s);
 
 }
@@ -312,7 +334,11 @@ void calcSub(struct stack *s) {
 
 extern void execute_p(struct stack *s);
 void execute_p(struct stack *s) {//TODO remove
-    printf("%s\n",s->firstBignum[s->size-1]->digit);
+    if(peek(s)->digit[0]=='_'){
+        putchar('-');
+        peek(s)->digit++;
+    }
+    printf("%s\n",peek(s)->digit);
 }
 
 
@@ -406,10 +432,11 @@ struct bignum *peek(struct stack * s) {
     return peeked;
 }
 
-void pop(struct stack *s) {
+struct bignum * pop(struct stack *s) {
       struct bignum *poped = peek(s);
      s->size --;
-     free(poped);
+     return poped;
+
 }
 
 
