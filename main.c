@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <malloc.h>
-#include <limits.h>
 #include <stdbool.h>
 #include <string.h>
 #include "main.h"
@@ -29,7 +28,7 @@ struct bignum* convertTObignum(long array[],long size){
         num->digit[-1]='_';
         num->digit--;
     }
-    num->numberOfDigits=strlen(num->digit);
+    num->numberOfDigits= (long) strlen(num->digit);
     free(array);
     return num;
 
@@ -218,7 +217,10 @@ void calcMult(struct stack *s) {
 }
 int isEqualZeroOrOne(const long *a, long aSize) {
     int con;
-    if (a[1] != 1 || a[1] != 0 ){
+    if (a[1] != 1) {
+        con = -1;
+    }
+    else if (a[1] != 0 ){
         con = -1;
     }
     else {
@@ -256,7 +258,8 @@ long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long
     long **answer;
     long *finalAnswer;
     long sign = returnSignOfCalc (multiplied, multiplier);
-    long secEqZeroOrOne = isEqualZeroOrOne(multiplier, multiplierSize);
+    long secEqZeroOrOne;
+    secEqZeroOrOne = isEqualZeroOrOne(multiplier, multiplierSize);
     if (secEqZeroOrOne == 0 || secEqZeroOrOne == 1) {
         finalAnswer = returnZeroOrOneArray (secEqZeroOrOne, sign);
     }
@@ -272,7 +275,8 @@ long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long
 }
 long *sumTwoDimArray(long **twoDimArray, long max) {
     long i;
-    long *finalArray = calloc( max, sizeof(long));
+    long *finalArray;
+    finalArray = calloc((size_t) max, sizeof(long));
     for ( i = 0; i < sizeof(twoDimArray); i++ ){
        addingTwoArrays(finalArray, twoDimArray[i], max, max);
     }
