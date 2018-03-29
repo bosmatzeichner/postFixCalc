@@ -12,10 +12,8 @@ long arrangeCarry(long *cellToChange);
 void addDigit(char c, struct bignum* number);
 long *convertToArray(struct bignum* number);
 struct bignum* convertTObignum(long array[],long size);
-long *addingTwoArrays(long first[],long second[], long firstLength, long secondLength);
-
-long *addingTwoArrays(const long first[], const long second[], long firstLength, long secondLength);
-long **recursiveMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
+void addingTwoArrays(const long first[], const long second[], long firstLength, long secondLength);
+void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
 
 struct stack;
 void push(struct bignum *number, struct stack* s);
@@ -29,8 +27,7 @@ extern void calcDiv(struct stack* s);
 extern void execute_p(struct stack *s);
 extern void execute_c();
 
-bool isEqualZero(const long *a,long aSize ,const long *b, long bSize);
-bool isEqualOne(const long *a,long aSize);
+int isEqualZeroOrOne(const long *a, long aSize)
 bool isGE(const long* first,const long* second, long firstSize, long secondSize);
 
 

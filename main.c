@@ -82,7 +82,7 @@ long getResult(long carry) {
     return j;
 }
 
-long *addingTwoArrays(long first[],long second[], long firstLength, long secondLength) {
+void addingTwoArrays(const long first[], const long second[], long firstLength, long secondLength) {
     long max = firstLength;
     long min=secondLength;
     long* bigger = first;
@@ -114,8 +114,6 @@ long *addingTwoArrays(long first[],long second[], long firstLength, long secondL
     return result;
 
 }
-
-
 long *convertToArray(struct bignum* number){
     bool isNegative = number->digit[0]=='_';
     if (isNegative) {
@@ -139,26 +137,49 @@ long *convertToArray(struct bignum* number){
     return answer;
 
 }
-void addDigit(char c, struct bignum* number);
 
 struct stack {
     int size;
     struct bignum* firstBignum[1024];
 };
-void push(struct bignum *number, struct stack* s);
-struct bignum *peek (struct stack *s);
-struct bignum *pop (struct stack *s);
+void addDigit(char c, struct bignum *number) {
+    number->digit[number->numberOfDigits]= c;
+    number->numberOfDigits++;
+    if(number->numberOfDigits==number->capacity-1){
+        number->capacity= number->capacity+MAX_SIZE;
+        char* newNumber;
+        newNumber=(char*) malloc(sizeof(char)*(number->capacity));
+        char*j= newNumber;
+        for(char* i=number->digit; i < number->digit + number->numberOfDigits; i++,j++){
+            *j=*i;
+        }
+        free(number->digit);
+        number->digit=newNumber;
+    }
+}
+void push(struct bignum *number, struct stack *s) {
+    s->firstBignum[s->size] = number;
+    s->size++;
+}
+struct bignum *peek(struct stack * s) {
+    struct bignum *peeked = s->firstBignum[s->size-1];
+    return peeked;
+}
+struct bignum * pop(struct stack *s) {
+    struct bignum *poped = peek(s);
+    s->size --;
+    return poped;
 
-
-extern void calcMult(struct stack* s);
+}
 
 long arrangeCarry(long *cellToChange);
-
-long **recursiveMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
+void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
+    //finished the calculating
     if (counter == multiplierSize)
-        return twoDimArray;
+        return;
+
     long carry = 0;
-    long index = 0;
+    long index;
 
     for (index = 1; index < multipliedSize ; index++){
         //couter start by 1 couse the first long is the sign
@@ -168,47 +189,76 @@ long **recursiveMult(long **twoDimArray, long counter, long *multiplied, long *m
     if (carry > 0){
         twoDimArray[counter - 1][counter + index] = carry ;
     }
-    recursiveMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
+    recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
 }
-
-long arrangeCarry(long *cellToChange) {
-    return 0;
-}
-
+long returnSignOfCalc(long *multiplied, long *multiplier);
 void calcMult(struct stack *s) {//TODO remove
-    struct bignum* first= s->firstBignum[s->size-1];
-    struct bignum* second= s->firstBignum[s->size-2];
-    long* multiplier = convertToArray(first);
-    long* multiplied = convertToArray(second);
-    long multiplierSize= first->numberOfDigits/9 + 1;
-    long multipliedSize= second->numberOfDigits/9 + 1;
-    long max = multiplierSize + multipliedSize;
-//check greater or equal to decide
+    struct bignum *first = s->firstBignum[s->size - 1];
+    struct bignum *second = s->firstBignum[s->size - 2];
+    long *multiplier = convertToArray(first);
+    long *multiplied = convertToArray(second);
+    long * finalAnswer;
+    long multiplierSize = first->numberOfDigits / 9 + 1;
+    long multipliedSize = second->numberOfDigits / 9 + 1;
+    //check greater or equal without sign bit
     if (isGE(multiplier + 1, multiplier + 1, multiplierSize, multipliedSize)) {
         long tmp = multipliedSize;
-        multipliedSize= multiplierSize;
+        multipliedSize = multiplierSize;
         multiplierSize = tmp;
-        long* tmpArray = multiplied;
+        long *tmpArray = multiplied;
         multiplied = multiplier;
         multiplier = tmpArray;
     }
-    long* answer = recursiveMult(multiplied , multiplier, multipliedSize, multiplierSize);
-
-    if ( (multiplied[0] == -1 && multiplier[0] == 1) || (multiplied[0] == 1 && multiplier[0] == -1)  )
-        answer[0] = -1;
-    else
-        answer[0] = 1;
-
-    push(convertTObignum(answer,max),s);
+    long max = multiplierSize + multipliedSize;
+    finalAnswer = getFinalMult (multiplied, multiplier, multipliedSize, multiplierSize, max);
+    push(convertTObignum(finalAnswer,max),s);
     free(multiplied);
     free(multiplier);
 }
-
-bool isEqualZero(const long *a,long aSize ,const long *b, long bSize);
-bool isEqualOne(const long *a,long aSize);
-
+long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max) {
+    long **answer;
+    long *finalAnswer;
+    long sign = returnSignOfCalc (multiplied, multiplier);
+    long secEqZeroOrOne = isEqualZeroOrOne(multiplier, multiplierSize);
+    if (secEqZeroOrOne == 0 || secEqZeroOrOne == 1) {
+        finalAnswer = returnZeroOrOneArray (secEqZeroOrOne, sign);
+    }
+    else {
+        answer = malloc(sizeof(long) * (max) * sizeof(long) * (multiplierSize));
+        long counter = 0;
+        recCalcMult(answer, counter, multiplied, multiplier, multipliedSize, multiplierSize);
+        finalAnswer =  sumTwoDimArray(answer, max);
+        finalAnswer[0] = sign;
+        free(answer);
+    }
+    return finalAnswer;
+}
+long *returnZeroOrOneArray(long eqZeroOrOne, long sign) {
+    //check for cases of 0\1
+    long *finalAnswer;
+    if (eqZeroOrOne == 0) {
+        finalAnswer = calloc(2, sizeof(long));
+        finalAnswer[0] = sign;
+    } else if (eqZeroOrOne == 1) {
+        finalAnswer = calloc(2, sizeof(long));
+        finalAnswer[0] = sign;
+        finalAnswer[1] = 1;
+    }}
+long returnSignOfCalc(long *multiplied, long *multiplier) {
+    if ( (multiplied[0] == -1 && multiplier[0] == 1) || (multiplied[0] == 1 && multiplier[0] == -1)  )
+        return -1;
+    else
+        return 1;
+}
+long *sumTwoDimArray(long **twoDimArray, long max) {
+    long i;
+    long *finalArray = calloc( max, sizeof(long));
+    for ( i = 0; i < sizeof(twoDimArray); i++ ){
+       addingTwoArrays(finalArray, twoDimArray[i], max, max);
+    }
+    return finalArray;
+}
 long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize);
-
 long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize) {
     long borrow=0;
     long max=toSubFromSize;
@@ -244,39 +294,28 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
     result[max]=bigger[max-1];
     return result;
 }
-
-bool isEqualZero(const long *a, long aSize, const long *b, long bSize) {
-    int con = 1;
-    for (long i = 1; con && i < aSize-1; i++ ){
-        if (a[i] != 0)
-            con = 0;
+int isEqualZeroOrOne(const long *a, long aSize) {
+    int con;
+    if (a[1] != 1 || a[1] != 0 ){
+        con = -1;
     }
-    if (con)
-        return true;
-    con=1;
-    for (long j = 1; con && j < bSize - 1; j++ ){
-        if (b[j]!=0)
+    else {
+        if (a[1] == 1){
+            con = 1;
+        }
+        else {
             con = 0;
+        }
+        for (long i = 2; con!=-1 && i < aSize-1; i++ ){
+            if (a[i] != 0)
+                con = -1;
+        }
     }
-    return con==1;
+    return con;
 }
-bool isEqualOne(const long *a, long aSize) {
-    int con = 1;
-    if (a[1] != 1)
-        con = 0;
-    for (long i = 2; con && i < aSize-2; i++ ){
-        if (a[i] != 0)
-            con = 0;
-    }
-    return con==1;
-}
-extern void calcDiv(struct stack* s);//TODO remove
 void calcDiv(struct stack *s) {
     printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 }
-
-
-extern void calcSum(struct stack* s);//TODO remove
 void calcSum(struct stack *s) {
     struct bignum *first= pop(s);
     struct bignum *second= pop(s);
@@ -322,19 +361,10 @@ void calcSum(struct stack *s) {
     push(convertTObignum(result,max+1),s);
 
 }
-
-
-
-extern void calcSub(struct stack* s);//TODO remove
-
 void calcSub(struct stack *s) {
     printf("caculating sub on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 
 }
-
-
-
-extern void execute_p(struct stack *s);
 void execute_p(struct stack *s) {//TODO remove
     if(peek(s)->digit[0]=='_'){
         putchar('-');
@@ -343,10 +373,6 @@ void execute_p(struct stack *s) {//TODO remove
     else
         printf("%s\n",peek(s)->digit);
 }
-
-
-
-extern void execute_c();
 void execute_c() {//TODO remove
     printf("executing c\n");
 
@@ -409,38 +435,6 @@ int main() {
 //    free(stack);
 }
 
-void addDigit(char c, struct bignum *number) {
-    number->digit[number->numberOfDigits]= c;
-    number->numberOfDigits++;
-    if(number->numberOfDigits==number->capacity-1){
-        number->capacity= number->capacity+MAX_SIZE;
-        char* newNumber;
-        newNumber=(char*) malloc(sizeof(char)*(number->capacity));
-        char*j= newNumber;
-        for(char* i=number->digit; i < number->digit + number->numberOfDigits; i++,j++){
-            *j=*i;
-        }
-        free(number->digit);
-        number->digit=newNumber;
-    }
-}
-
-void push(struct bignum *number, struct stack *s) {
-    s->firstBignum[s->size] = number;
-    s->size++;
-}
-
-struct bignum *peek(struct stack * s) {
-    struct bignum *peeked = s->firstBignum[s->size-1];
-    return peeked;
-}
-
-struct bignum * pop(struct stack *s) {
-      struct bignum *poped = peek(s);
-     s->size --;
-     return poped;
-
-}
 
 
 
