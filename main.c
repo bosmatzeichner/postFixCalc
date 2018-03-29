@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <string.h>
+#include <adoctint.h>
 #include "main.h"
 void addDigit(char c, struct bignum* number);
 long *convertToArray(struct bignum* number);
@@ -199,6 +200,8 @@ void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multi
     }
     recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
 }
+
+// meir advice - multiply with binary counter
 void calcMult(struct stack *s) {
     struct bignum *first = s->firstBignum[s->size - 1];
     struct bignum *second = s->firstBignum[s->size - 2];
@@ -271,11 +274,18 @@ long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long
         finalAnswer = returnZeroOrOneArray (secEqZeroOrOne, sign);
     }
     else {
-        answer = malloc(sizeof(long) * (max) * sizeof(long) * (multiplierSize));
+        answer = calloc(multiplierSize, sizeof(long));
+        for(long i=0; i<multiplierSize; i++){
+            answer[i] = calloc(max, sizeof(long));
+        }
         long counter = 0;
         recCalcMult(answer, counter, multiplied, multiplier, multipliedSize, multiplierSize);
         finalAnswer =  sumTwoDimArray(answer, max);
         finalAnswer[0] = sign;
+        //free any array !
+        for(long i=0; i<multiplierSize; i++){
+            free (answer[i]);
+        }
         free(answer);
     }
     return finalAnswer;
