@@ -157,8 +157,29 @@ struct bignum *pop (struct stack *s);
 
 
 extern void calcMult(struct stack* s);
-long *recursiveMult2(long **twoDimArray, long shiftL, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
-long *recursiveMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
+
+long arrangeCarry(long *cellToChange);
+
+long **recursiveMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
+    if (counter == multiplierSize)
+        return twoDimArray;
+    long carry = 0;
+    long index = 0;
+
+    for (index = 1; index < multipliedSize ; index++){
+        //couter start by 1 couse the first long is the sign
+        twoDimArray[counter - 1][counter + index - 1] =  multiplier [counter] * multiplied [index] + carry;
+        carry = arrangeCarry(& twoDimArray[counter - 1][index-1]);
+    }
+    if (carry > 0){
+        twoDimArray[counter - 1][counter + index] = carry ;
+    }
+    recursiveMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
+}
+
+long arrangeCarry(long *cellToChange) {
+    return 0;
+}
 
 void calcMult(struct stack *s) {//TODO remove
     struct bignum* first= s->firstBignum[s->size-1];
@@ -193,24 +214,6 @@ bool isEqualZero(const long *a,long aSize ,const long *b, long bSize);
 bool isEqualOne(const long *a,long aSize);
 
 long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize);
-
-long *recursiveMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize) {
-    long* decrement;
-    long * newmultiplier;
-    if (isEqualZero (multiplied, multipliedSize, multiplier, multiplierSize))
-        return (long*)malloc(sizeof(long)*(2)) ;
-    else if (isEqualOne(multiplied, multipliedSize) )
-        return multiplier;
-    else if (isEqualOne (multiplier, multiplierSize))
-        return multiplied;
-
-    decrement = malloc(sizeof(long) * (2));
-    decrement[0]= 1;
-    decrement[1]= 1;
-    newmultiplier = subTwoArrays(multiplier, decrement, multiplierSize, 2 );
-    //thinking how to save memory space by freeing the newmultiplier pointer
-    return addingTwoArrays(multiplied, recursiveMult(multiplied, newmultiplier, multipliedSize,multiplierSize ), multipliedSize, multiplierSize);
-}
 
 long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize) {
     long borrow=0;
