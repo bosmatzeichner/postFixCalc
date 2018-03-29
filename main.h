@@ -12,6 +12,8 @@ long arrangeCarry(long *cellToChange);
 void addDigit(char c, struct bignum* number);
 long *convertToArray(struct bignum* number);
 struct bignum* convertTObignum(long array[],long size);
+long *addingTwoArrays(long first[],long second[], long firstLength, long secondLength);
+
 long *addingTwoArrays(const long first[], const long second[], long firstLength, long secondLength);
 long **recursiveMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
 

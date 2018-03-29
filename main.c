@@ -4,7 +4,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include "main.h"
-
+void addDigit(char c, struct bignum* number);
+long *convertToArray(struct bignum* number);
 #define MAX_SIZE 20
 typedef struct bignum {
     long capacity;
@@ -65,7 +66,7 @@ long getLongValue(const char* digits, long end, long begin){
     return ans;
 }
 long getCarry(long number){
-    if (number>999999999||number<-999999999){
+    if (number>999999999){
         for(int i=0;i<9;i++){
             number=number/10;
         }
@@ -81,42 +82,35 @@ long getResult(long carry) {
     return j;
 }
 
-long *addingTwoArrays(const long first[], const long second[], long firstLength, long secondLength) {
+long *addingTwoArrays(long first[],long second[], long firstLength, long secondLength) {
     long max = firstLength;
     long min=secondLength;
+    long* bigger = first;
+    long *smaller = second;
+
     if (firstLength<secondLength) {
         max = secondLength;
         min = firstLength;
+        bigger = second;
+        smaller = first;
     }
     long carry=0;
     long *result = malloc(sizeof(long)*(max+1));
     for(long i=0;i<min;i++){
-        result[i+1]=first[i]+second[i]+carry;
-        carry=getCarry(result[i]);
+        result[i+1]=bigger[i]+smaller[i]+carry;
+        carry=getCarry(result[i+1]);
         if(carry>0)
-            result[i] =result[i]-getResult(carry);//setting result[i] to be the actual result it should have
+            result[i+1] =result[i+1]-getResult(carry);//setting result[i] to be the actual result it should have
 
     }
-    if(firstLength==min){
-        for(;min<max;min++){
-            result[min]=second[min]+carry;
-            carry = getCarry(result[min]);
-            if(carry>0) {
-                result[min] = result[min]-getResult(carry)  ;//setting result[i] to be the actual result it should have
-            }
+    for(;min<max;min++){
+        result[min+1]=bigger[min]+carry;
+        carry = getCarry(result[min+1]);
+        if(carry>0) {
+            result[min+1] = result[min+1]-getResult(carry)  ;//setting result[i] to be the actual result it should have
         }
-        result[max]=result[max]+carry;
     }
-    else{
-        for(;min<max;min++){
-            result[min]=first[min]+carry;
-            carry = getCarry(result[min]);
-            if(carry>0) {
-                result[min] = result[min] - getResult(carry);//setting result[i] to be the actual result it should have
-            }
-        }
-        result[max]=carry;
-    }
+    result[max]=result[max]+carry;
     return result;
 
 }
@@ -129,7 +123,7 @@ long *convertToArray(struct bignum* number){
         number->numberOfDigits=number->numberOfDigits-1;
     }
     long size = number->numberOfDigits/9+1;
-    long* answer=malloc(sizeof(long)*(size+1));
+    long* answer=calloc((size_t)size+1,sizeof(long));
     long beginningOfLong=number->numberOfDigits-1;
     long endOfLong=beginningOfLong-8;
     if(isNegative)
@@ -236,7 +230,7 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
                 bigger[i+1]--;
                 borrow+=1000000000;
             }
-            result[i]=borrow;
+            result[i+1]=borrow;
         }
         else{
             borrow=bigger[i];
@@ -244,10 +238,10 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
                 bigger[i+1]--;
                 borrow+=1000000000;
             }
-            result[i]=borrow;
+            result[i+1]=borrow;
         }
     }
-    result[max]=result[max]+borrow;
+    result[max]=bigger[max-1];
     return result;
 }
 
@@ -287,7 +281,11 @@ void calcSum(struct stack *s) {
     struct bignum *first= pop(s);
     struct bignum *second= pop(s);
     long firstNewSize = first->numberOfDigits/9+1;
+    if(first->digit[0]=='_')
+        firstNewSize = (first->numberOfDigits-1)/9+1;
     long secondNewSize = second->numberOfDigits/9+1;
+    if(second->digit[0]=='_')
+        secondNewSize=(second->numberOfDigits-1)/9+1;
     long max=firstNewSize;
     long min=secondNewSize;
     if(firstNewSize<secondNewSize){//if first number size is smaller then the second
@@ -340,9 +338,10 @@ extern void execute_p(struct stack *s);
 void execute_p(struct stack *s) {//TODO remove
     if(peek(s)->digit[0]=='_'){
         putchar('-');
-        peek(s)->digit++;
+        printf("%s\n",peek(s)->digit+1);
     }
-    printf("%s\n",peek(s)->digit);
+    else
+        printf("%s\n",peek(s)->digit);
 }
 
 
