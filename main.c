@@ -1,8 +1,13 @@
 #include <stdio.h>
 #include <malloc.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <string.h>
 #include "main.h"
+void addDigit(char c, struct bignum* number);
+long *convertToArray(struct bignum* number);
+void addingTwoArrays(long first[],long second[], long firstLength, long secondLength, long result[]);
+
 #define MAX_SIZE 20
 typedef struct bignum {
     long capacity;
@@ -48,12 +53,16 @@ bool isGE(const long* first,const long* second, long firstSize, long secondSize)
                 return false;
         }
     }
-    for(;min>=0;min--){
-        if(first[min]>second[min])
+
+    for(;min>0;min--){
+        if(first[min-1]>second[min-1])
             return true;
-    }
+        else if(second[min-1]>first[min-1])
+            return false;
+        }
     return false;
 }
+
 
 long getLongValue(const char* digits, long end, long begin){
     long ans=0;
@@ -84,7 +93,8 @@ long getResult(long carry) {
     }
     return j;
 }
-void addingTwoArrays(const long first[], const long second[], long firstLength, long secondLength) {
+
+void addingTwoArrays(long first[],long second[], long firstLength, long secondLength, long result[]) {
     long max = firstLength;
     long min=secondLength;
     long* bigger = first;
@@ -97,7 +107,6 @@ void addingTwoArrays(const long first[], const long second[], long firstLength, 
         smaller = first;
     }
     long carry=0;
-    long *result = malloc(sizeof(long)*(max+1));
     for(long i=0;i<min;i++){
         result[i+1]=bigger[i]+smaller[i]+carry;
         carry=getCarry(result[i+1]);
@@ -113,8 +122,6 @@ void addingTwoArrays(const long first[], const long second[], long firstLength, 
         }
     }
     result[max]=result[max]+carry;
-    return result;
-
 }
 long *convertToArray(struct bignum* number){
     bool isNegative = number->digit[0]=='_';
@@ -144,7 +151,7 @@ struct stack {
     int size;
     struct bignum* firstBignum[1024];
 };
-void addDigit(char c, struct bignum *number) {
+void addDigit(char c, struct bignum* number) {
     number->digit[number->numberOfDigits]= c;
     number->numberOfDigits++;
     if(number->numberOfDigits==number->capacity-1){
@@ -278,7 +285,7 @@ long *sumTwoDimArray(long **twoDimArray, long max) {
     long *finalArray;
     finalArray = calloc((size_t) max, sizeof(long));
     for ( i = 0; i < sizeof(twoDimArray); i++ ){
-       addingTwoArrays(finalArray, twoDimArray[i], max, max);
+       addingTwoArrays(finalArray, twoDimArray[i], max, max, finalArray);
     }
     return finalArray;
 }
@@ -297,7 +304,7 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
     }
     long* result = malloc(sizeof(long)*max+1);
     borrow=bigger[0]-smaller[0];
-    for(long i=0;i<max-1;i++){
+    for(long i=0;i<max;i++){
         if(i<min){
             borrow=bigger[i]-smaller[i];
             if(borrow<0){
@@ -315,7 +322,8 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
             result[i+1]=borrow;
         }
     }
-    result[max]=bigger[max-1];
+    if(min!=max)
+        result[max]=bigger[max-1];
     return result;
 }
 
@@ -337,11 +345,11 @@ void calcSum(struct stack *s) {
         max = secondNewSize;
         min = firstNewSize;
     }
-    long *result;
+    long *result= calloc((size_t)max+1, sizeof(long));
     long* firstArray = convertToArray(first);
     long* secondArray = convertToArray(second);
     if(firstArray[0]==secondArray[0]) {
-        result = addingTwoArrays(firstArray+1, secondArray+1, firstNewSize, secondNewSize);
+        addingTwoArrays(firstArray+1, secondArray+1, firstNewSize, secondNewSize,result);
         result[0]=firstArray[0];
     }
     else{
@@ -368,11 +376,53 @@ void calcSum(struct stack *s) {
 
 }
 void calcSub(struct stack *s) {
-    printf("caculating sub on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
+    struct bignum *first= pop(s);
+    struct bignum *second= pop(s);
+    long firstNewSize = first->numberOfDigits/9+1;
+    if(first->digit[0]=='_')
+        firstNewSize = (first->numberOfDigits-1)/9+1;
+    long secondNewSize = second->numberOfDigits/9+1;
+    if(second->digit[0]=='_')
+        secondNewSize=(second->numberOfDigits-1)/9+1;
+    long max=firstNewSize;
+    if(firstNewSize<secondNewSize){//if first number size is smaller then the second
+        max = secondNewSize;
+    }
+    long *result= calloc((size_t)max+1, sizeof(long));
+    long* firstArray = convertToArray(first);
+    long* secondArray = convertToArray(second);
+    firstArray[0]=firstArray[0]*(-1);//changing the sign of the subtractant
+    if(firstArray[0]==secondArray[0]) {
+        addingTwoArrays(firstArray+1, secondArray+1, firstNewSize, secondNewSize,result);
+        result[0]=firstArray[0];
+    }
+    else{
+        result = subTwoArrays(firstArray+1,secondArray+1,firstNewSize,secondNewSize);
+        bool firstGreaterOrEqualtoSecond = isGE(firstArray+1,secondArray+1,firstNewSize,secondNewSize);
+        if(firstArray[0]==-1){//if the first is negative
+            if(firstGreaterOrEqualtoSecond)
+                result[0]=-1;
+            else
+                result[0]=1;
+        }
+        else{
+            if(firstGreaterOrEqualtoSecond)
+                result[0]=1;
+            else
+                result[0]=-1;
+        }
+    }
+    free(first);
+    free(second);
+    free(firstArray);
+    free(secondArray);
+    push(convertTObignum(result,max+1),s);
 
 }
+}
 
-void execute_p(struct stack *s) {
+
+void execute_p(struct stack *s) {//TODO remove
     if(peek(s)->digit[0]=='_'){
         putchar('-');
         printf("%s\n",peek(s)->digit+1);

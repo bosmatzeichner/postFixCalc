@@ -11,10 +11,8 @@ long getCarry(long number);
 long getResult(long carry);
 long arrangeCarry(long *cellToChange);
 
-void addDigit(char c, struct bignum* number);
-long *convertToArray(struct bignum* number);
+
 struct bignum* convertTObignum(long array[],long size);
-void addingTwoArrays(const long first[], const long second[], long firstLength, long secondLength);
 void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
 
 int main();
