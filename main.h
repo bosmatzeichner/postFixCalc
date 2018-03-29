@@ -35,7 +35,7 @@ bool isGE(const long* first,const long* second, long firstSize, long secondSize)
 long *returnZeroOrOneArray(long eqZeroOrOne, long sign) ;
 long returnSignOfCalc(const long *multiplied, const long *multiplier);
 long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max);
-long *sumTwoDimArray(long **twoDimArray, long max);
+
 int compare(struct bignum *number1, struct bignum *number2);
 void negateNumber(struct bignum *number);
 void printNumber(struct bignum *number);
