@@ -419,7 +419,7 @@ void calcSub(struct stack *s) {
     push(convertTObignum(result,max+1),s);
 
 }
-}
+
 
 
 void execute_p(struct stack *s) {//TODO remove
