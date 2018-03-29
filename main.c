@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include "main.h"
-void addDigit(char c, struct bignum* number);
-long *convertToArray(struct bignum* number);
 #define MAX_SIZE 20
 typedef struct bignum {
     long capacity;
@@ -74,6 +72,12 @@ long getCarry(long number){
     }
     return 0;
 }
+long arrangeCarry(long *cellToChange) {
+    long carry = getCarry(*cellToChange);
+    if(carry>0)
+        *cellToChange = *cellToChange-getResult(carry);//setting result[i] to be the actual result it should have
+    return carry;
+}
 long getResult(long carry) {
     long j = carry;
     for (int i=0; i < 9; i++) {
@@ -81,7 +85,6 @@ long getResult(long carry) {
     }
     return j;
 }
-
 void addingTwoArrays(const long first[], const long second[], long firstLength, long secondLength) {
     long max = firstLength;
     long min=secondLength;
@@ -172,7 +175,6 @@ struct bignum * pop(struct stack *s) {
 
 }
 
-long arrangeCarry(long *cellToChange);
 void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
     //finished the calculating
     if (counter == multiplierSize)
@@ -191,7 +193,6 @@ void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multi
     }
     recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
 }
-long returnSignOfCalc(long *multiplied, long *multiplier);
 void calcMult(struct stack *s) {//TODO remove
     struct bignum *first = s->firstBignum[s->size - 1];
     struct bignum *second = s->firstBignum[s->size - 2];
@@ -215,23 +216,24 @@ void calcMult(struct stack *s) {//TODO remove
     free(multiplied);
     free(multiplier);
 }
-long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max) {
-    long **answer;
-    long *finalAnswer;
-    long sign = returnSignOfCalc (multiplied, multiplier);
-    long secEqZeroOrOne = isEqualZeroOrOne(multiplier, multiplierSize);
-    if (secEqZeroOrOne == 0 || secEqZeroOrOne == 1) {
-        finalAnswer = returnZeroOrOneArray (secEqZeroOrOne, sign);
+int isEqualZeroOrOne(const long *a, long aSize) {
+    int con;
+    if (a[1] != 1 || a[1] != 0 ){
+        con = -1;
     }
     else {
-        answer = malloc(sizeof(long) * (max) * sizeof(long) * (multiplierSize));
-        long counter = 0;
-        recCalcMult(answer, counter, multiplied, multiplier, multipliedSize, multiplierSize);
-        finalAnswer =  sumTwoDimArray(answer, max);
-        finalAnswer[0] = sign;
-        free(answer);
+        if (a[1] == 1){
+            con = 1;
+        }
+        else {
+            con = 0;
+        }
+        for (long i = 2; con!=-1 && i < aSize-1; i++ ){
+            if (a[i] != 0)
+                con = -1;
+        }
     }
-    return finalAnswer;
+    return con;
 }
 long *returnZeroOrOneArray(long eqZeroOrOne, long sign) {
     //check for cases of 0\1
@@ -250,6 +252,24 @@ long returnSignOfCalc(long *multiplied, long *multiplier) {
     else
         return 1;
 }
+long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max) {
+    long **answer;
+    long *finalAnswer;
+    long sign = returnSignOfCalc (multiplied, multiplier);
+    long secEqZeroOrOne = isEqualZeroOrOne(multiplier, multiplierSize);
+    if (secEqZeroOrOne == 0 || secEqZeroOrOne == 1) {
+        finalAnswer = returnZeroOrOneArray (secEqZeroOrOne, sign);
+    }
+    else {
+        answer = malloc(sizeof(long) * (max) * sizeof(long) * (multiplierSize));
+        long counter = 0;
+        recCalcMult(answer, counter, multiplied, multiplier, multipliedSize, multiplierSize);
+        finalAnswer =  sumTwoDimArray(answer, max);
+        finalAnswer[0] = sign;
+        free(answer);
+    }
+    return finalAnswer;
+}
 long *sumTwoDimArray(long **twoDimArray, long max) {
     long i;
     long *finalArray = calloc( max, sizeof(long));
@@ -258,7 +278,7 @@ long *sumTwoDimArray(long **twoDimArray, long max) {
     }
     return finalArray;
 }
-long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize);
+
 long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize) {
     long borrow=0;
     long max=toSubFromSize;
@@ -294,25 +314,7 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
     result[max]=bigger[max-1];
     return result;
 }
-int isEqualZeroOrOne(const long *a, long aSize) {
-    int con;
-    if (a[1] != 1 || a[1] != 0 ){
-        con = -1;
-    }
-    else {
-        if (a[1] == 1){
-            con = 1;
-        }
-        else {
-            con = 0;
-        }
-        for (long i = 2; con!=-1 && i < aSize-1; i++ ){
-            if (a[i] != 0)
-                con = -1;
-        }
-    }
-    return con;
-}
+
 void calcDiv(struct stack *s) {
     printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 }
@@ -365,6 +367,7 @@ void calcSub(struct stack *s) {
     printf("caculating sub on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 
 }
+
 void execute_p(struct stack *s) {//TODO remove
     if(peek(s)->digit[0]=='_'){
         putchar('-');
@@ -377,7 +380,9 @@ void execute_c() {//TODO remove
     printf("executing c\n");
 
 }
-enum state{number,notNumber};
+
+enum state{number,notNumber}
+
 int main() {
     struct bignum* currbignum;
     enum state currState = notNumber;
@@ -434,7 +439,5 @@ int main() {
     printf("exited\n");
 //    free(stack);
 }
-
-
 
 
