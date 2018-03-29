@@ -20,8 +20,8 @@ struct stack;
 void push(struct bignum *number, struct stack* s);
 struct bignum *peek (struct stack *s);
 struct bignum * pop(struct stack *s) ;
-extern void calcSum(struct stack* s);
-extern void calcSub(struct stack* s);
+extern struct bignum* calcSum(struct bignum* first,struct bignum* second);
+extern struct bignum* calcSub(struct bignum* first,struct bignum* second);
 extern void calcMult(struct stack* s);
 extern void calcDiv(struct stack* s);
 
@@ -36,6 +36,7 @@ long *returnZeroOrOneArray(long eqZeroOrOne, long sign) ;
 long returnSignOfCalc(const long *multiplied, const long *multiplier);
 long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max);
 long *sumTwoDimArray(long **twoDimArray, long max);
-
-
+int compare(struct bignum *number1, struct bignum *number2);
+void negateNumber(struct bignum *number);
+void printNumber(struct bignum *number);
 #endif //POSTFIXCALC_MAIN_H
