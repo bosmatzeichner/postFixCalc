@@ -35,7 +35,7 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
 int isEqualZeroOrOne(const long *a, long aSize);
 bool isGE(const long* first,const long* second, long firstSize, long secondSize);
 long *returnZeroOrOneArray(long eqZeroOrOne, long sign) ;
-long returnSignOfCalc(long *multiplied, long *multiplier);
+long returnSignOfCalc(const long *multiplied, const long *multiplier);
 long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max);
 long *sumTwoDimArray(long **twoDimArray, long max);
 

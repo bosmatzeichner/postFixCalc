@@ -24,7 +24,7 @@ struct bignum* convertTObignum(long array[],long size){
     }
     long i=0;
     for(;i<size*9&&num->digit[i]=='0';i++){}
-    num->digit= (char *) num->digit+i;
+    num->digit= (char*) num->digit+i;
     if (isNegative){
         num->digit[-1]='_';
         num->digit--;
@@ -193,7 +193,7 @@ void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multi
     }
     recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
 }
-void calcMult(struct stack *s) {//TODO remove
+void calcMult(struct stack *s) {
     struct bignum *first = s->firstBignum[s->size - 1];
     struct bignum *second = s->firstBignum[s->size - 2];
     long *multiplier = convertToArray(first);
@@ -246,7 +246,7 @@ long *returnZeroOrOneArray(long eqZeroOrOne, long sign) {
         finalAnswer[0] = sign;
         finalAnswer[1] = 1;
     }}
-long returnSignOfCalc(long *multiplied, long *multiplier) {
+long returnSignOfCalc(const long *multiplied, const long *multiplier) {
     if ( (multiplied[0] == -1 && multiplier[0] == 1) || (multiplied[0] == 1 && multiplier[0] == -1)  )
         return -1;
     else
@@ -368,7 +368,7 @@ void calcSub(struct stack *s) {
 
 }
 
-void execute_p(struct stack *s) {//TODO remove
+void execute_p(struct stack *s) {
     if(peek(s)->digit[0]=='_'){
         putchar('-');
         printf("%s\n",peek(s)->digit+1);
@@ -376,12 +376,12 @@ void execute_p(struct stack *s) {//TODO remove
     else
         printf("%s\n",peek(s)->digit);
 }
-void execute_c() {//TODO remove
+void execute_c() {
     printf("executing c\n");
 
 }
 
-enum state{number,notNumber}
+enum state{number,notNumber};
 
 int main() {
     struct bignum* currbignum;
