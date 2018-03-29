@@ -2,12 +2,36 @@
 #include <malloc.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <string.h>
+
 #define MAX_SIZE 20
 typedef struct bignum {
     long capacity;
     long numberOfDigits;
     char* digit;
 };
+bool isGE(const long* first,const long* second, long firstSize, long secondSize){
+    long min=firstSize;
+    if(firstSize>secondSize){
+        for(long i=firstSize;i>secondSize;i--){
+            if(first[i]>0)
+                return true;
+        }
+        min=secondSize;
+    }
+    else if (secondSize>firstSize){
+        for(long i=secondSize;i>firstSize;i--){
+            if(second[i]>0)
+                return false;
+        }
+    }
+    for(;min>=0;min--){
+        if(first[min]>second[min])
+            return true;
+    }
+    return false;
+}
+
 long getLongValue(const char* digits, long end, long begin){
     long ans=0;
     for(;begin<=end;begin++){
@@ -29,7 +53,6 @@ long getResult(long carry) {
     for (int i=0; i < 9; i++) {
         j = j * 10;
     }
-//        else if(j<0)
     return j;
 }
 
@@ -42,11 +65,13 @@ long *addingTwoArrays(const long first[], const long second[], long firstLength,
     }
     long carry=0;
     long *result = malloc(sizeof(long)*(max+1));
+    first++;
+    second++;//TODO remove
     for(long i=0;i<min;i++){
         result[i]=first[i]+second[i]+carry;
         carry=getCarry(result[i]);
         if(carry>0)
-            result[i] =result[i]  - getResult(carry);//setting result[i] to be the actual result it should have
+            result[i] =result[i]-getResult(carry);//setting result[i] to be the actual result it should have
 
     }
     if(firstLength==min){
@@ -76,13 +101,19 @@ long *addingTwoArrays(const long first[], const long second[], long firstLength,
 
 long *convertToArray(struct bignum* number){
     bool isNegative = number->digit[0]=='_';
-    if (isNegative)
-        number->digit=number->digit+1;
-    long size = number->numberOfDigits/9;
+    if (isNegative) {
+        number->digit = number->digit + 1;
+        number->numberOfDigits=number->numberOfDigits-1;
+    }
+    long size = number->numberOfDigits/9+1;
     long* answer=malloc(sizeof(long)*(size+1));
     long beginningOfLong=number->numberOfDigits-1;
     long endOfLong=beginningOfLong-8;
-    for(long j=0;j<size+1;j++,beginningOfLong-=9,endOfLong-=9){
+    if(isNegative)
+        answer[0]=-1;
+    else
+        answer[0]=1;
+    for(long j=1;j<size+1;j++,beginningOfLong-=9,endOfLong-=9){
         if(endOfLong<0)
             answer[j]=getLongValue(number->digit, beginningOfLong,0);
         else
@@ -142,6 +173,8 @@ bool isEqualOne(long *a,long aSize);
 
 long *subTwoArrays(long *toSub, long *substructor, long toSubSize, long substructorSize);
 
+long *subTwoArrays(long *toSubFrom, long *substructor, long toSubSize, long substructorSize);
+
 long *recursiveMult(long *multiplied, long *multiplyer, long multipliedSize, long multiplyerSize) {
     long* decrement;
     long * newMultiplyer;
@@ -160,8 +193,41 @@ long *recursiveMult(long *multiplied, long *multiplyer, long multipliedSize, lon
     return addingTwoArrays(multiplied, recursiveMult(multiplied, newMultiplyer, multipliedSize,multiplyerSize ), multipliedSize, multiplyerSize);
 }
 
-long *subTwoArrays(long *toSub, long *substructor, long toSubSize, long substructorSize) {
-    return NULL;
+long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long substructorSize) {
+    long borrow=0;
+    long max=toSubFromSize;
+    long min = substructorSize;
+    long* bigger = toSubFrom;
+    long* smaller = substructor;
+    if(!isGE(toSubFrom,substructor,toSubFromSize,substructorSize)){
+        max=substructorSize;
+        min = toSubFromSize;
+        bigger = substructor;
+        smaller = toSubFrom;
+    }
+    long* result = malloc(sizeof(long)*max+1);
+
+    for(long i=1;i<max-2;i++){
+        if(i<min){
+            borrow=bigger[i]-smaller[i];
+            if(borrow<0){
+                bigger[i+1]--;
+                borrow+=1000000000;
+            }
+            result[i]=borrow;
+        }
+        else{
+            borrow=bigger[i];
+            if(borrow<0){
+                bigger[i+1]--;
+                borrow+=1000000000;
+            }
+            result[i]=borrow;
+        }
+    }
+    if(borrow>0)
+        result[max-1]=borrow;
+    return result;
 }
 
 bool isEqualZero(const long *a, long aSize, const long *b, long bSize) {
@@ -194,18 +260,23 @@ void calcDiv(struct stack *s) {
     printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 }
 struct bignum* convertTObignum(long array[],long size){
+    bool isNegative=array[0]==-1;
     struct bignum* num=malloc(sizeof(*num));
-    num->digit = malloc(sizeof(char)*size*9+1);
-    num->capacity = size*9+1;
-    num->numberOfDigits=size*9+1;
+    num->digit = malloc(sizeof(char)*size*9+2);
+    num->capacity = size*9+2;
     char* temp= num->digit;
+    num->digit[size*9]='\0';
+    if(isNegative){
+        num->digit[0]='_';
+        temp++;
+    }
     for (long i=0;i<size;i++,temp+=9) {
         sprintf(temp, "%09ld", array[size-1-i]);
     }
-    num->digit[size*9]='\0';
     long i=0;
     for(;i<size*9&&num->digit[i]=='0';i++){}
     num->digit= (char *) num->digit+i;
+    num->numberOfDigits=strlen(num->digit);
     return num;
 
 }
@@ -228,16 +299,23 @@ void calcSum(struct stack *s) {
 
 }
 
+
+
 extern void calcSub(struct stack* s);//TODO remove
+
 void calcSub(struct stack *s) {
     printf("caculating sub on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 
 }
 
+
+
 extern void execute_p(struct stack *s);
 void execute_p(struct stack *s) {//TODO remove
     printf("%s\n",s->firstBignum[s->size-1]->digit);
 }
+
+
 
 extern void execute_c();
 void execute_c() {//TODO remove
@@ -245,7 +323,6 @@ void execute_c() {//TODO remove
 
 }
 enum state{number,notNumber};
-
 int main() {
     struct bignum* currbignum;
     enum state currState = notNumber;
