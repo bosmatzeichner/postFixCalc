@@ -184,6 +184,27 @@ struct bignum * pop(struct stack *s) {
 
 }
 
+void recCalcMult2(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
+    //finished the calculating
+    if (counter == multiplierSize)
+        return;
+
+    long carry = 0;
+    long index;
+
+    for (index = 1; index < multipliedSize+1 ; index++){
+        //couter start by 1 couse the first long is the sign
+        twoDimArray[counter][counter + index - 1] =  (multiplier [counter+1] * multiplied [index]) + carry;
+        printf("%ld \n" , twoDimArray[counter][counter + index - 1] );
+        carry = arrangeCarry(& twoDimArray[counter][counter + index-1]);
+        // if (carry > 0){
+        //     twoDimArray[counter][counter + index] = carry ;
+        //}
+
+    }
+    recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
+}
+
 void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
     //finished the calculating
     if (counter == multiplierSize)
@@ -203,29 +224,6 @@ void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multi
 
     }
     recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
-}
-void calcMult(struct stack *s) {
-    struct bignum *first = s->firstBignum[s->size - 1];
-    struct bignum *second = s->firstBignum[s->size - 2];
-    long *multiplier = convertToArray(first);
-    long *multiplied = convertToArray(second);
-    long * finalAnswer;
-    long multiplierSize = first->numberOfDigits / 9 + 1;
-    long multipliedSize = second->numberOfDigits / 9 + 1;
-    //check greater or equal without sign bit
-    if (isGE(multiplier + 1, multiplier + 1, multiplierSize, multipliedSize)) {
-        long tmp = multipliedSize;
-        multipliedSize = multiplierSize;
-        multiplierSize = tmp;
-        long *tmpArray = multiplied;
-        multiplied = multiplier;
-        multiplier = tmpArray;
-    }
-    long max = multiplierSize + multipliedSize;
-    finalAnswer = getFinalMult (multiplied, multiplier, multipliedSize, multiplierSize, max);
-    push(convertTObignum(finalAnswer,max),s);
-    free(multiplied);
-    free(multiplier);
 }
 int isEqualZeroOrOne(const long *a, long aSize) {
     int con;
@@ -330,8 +328,30 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
         result[max]=bigger[max-1];
     return result;
 }
-
-void calcDiv(struct stack *s) {
+void calcMult(struct bignum* first,struct bignum* second) {
+    struct bignum *first = s->firstBignum[s->size - 1];
+    struct bignum *second = s->firstBignum[s->size - 2];
+    long *multiplier = convertToArray(first);
+    long *multiplied = convertToArray(second);
+    long * finalAnswer;
+    long multiplierSize = first->numberOfDigits / 9 + 1;
+    long multipliedSize = second->numberOfDigits / 9 + 1;
+    //check greater or equal without sign bit
+    if (isGE(multiplier + 1, multiplier + 1, multiplierSize, multipliedSize)) {
+        long tmp = multipliedSize;
+        multipliedSize = multiplierSize;
+        multiplierSize = tmp;
+        long *tmpArray = multiplied;
+        multiplied = multiplier;
+        multiplier = tmpArray;
+    }
+    long max = multiplierSize + multipliedSize;
+    finalAnswer = getFinalMult (multiplied, multiplier, multipliedSize, multiplierSize, max);
+    push(convertTObignum(finalAnswer,max),s);
+    free(multiplied);
+    free(multiplier);
+}
+struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
     printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
 }
 struct bignum* calcSum(struct bignum* first,struct bignum* second) {
@@ -414,10 +434,14 @@ int main() {
             case notNumber:
                 switch (c) {
                     case '*':
-                        calcMult(stack);
+                        first= pop(stack);
+                        second= pop(stack);
+                        push(calcMult(first,second),stack);
                         break;
                     case '/':
-                        calcDiv(stack);
+                        first= pop(stack);
+                        second= pop(stack);
+                        push(calcDiv(first,second),stack);
                         break;
                     case '+':
                         first= pop(stack);

@@ -22,8 +22,8 @@ struct bignum *peek (struct stack *s);
 struct bignum * pop(struct stack *s) ;
 extern struct bignum* calcSum(struct bignum* first,struct bignum* second);
 extern struct bignum* calcSub(struct bignum* first,struct bignum* second);
-extern void calcMult(struct stack* s);
-extern void calcDiv(struct stack* s);
+extern struct bignum* calcMult(struct bignum* first,struct bignum* second);
+extern struct bignum* calcDiv(struct bignum* first,struct bignum* second);
 
 extern void execute_p(struct stack *s);
 extern void execute_c();
