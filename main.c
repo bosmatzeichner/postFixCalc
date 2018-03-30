@@ -164,7 +164,7 @@ long *sumTwoDimArray(long **twoDimArray, long multiplierSize, long max) {
     long *finalArray;
     finalArray = calloc((size_t) max+1, sizeof(long));
     for ( i = 0; i < multiplierSize; i++ ){
-        addingTwoArrays(finalArray, twoDimArray[i], max, max, finalArray);
+        addingTwoArrays(finalArray+1, twoDimArray[i], max, max, finalArray+1);
     }
     return finalArray;
 }
@@ -184,27 +184,18 @@ struct bignum * pop(struct stack *s) {
 
 }
 
-void recCalcMult2(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
-    //finished the calculating
-    if (counter == multiplierSize)
+/*void recCalcMult2(struct bignum* multiplied, struct bignum* multiplier, struct bignum* counter ){
+
+    if (isGE(convertToArray(counter), multiplier, counter->numberOfDigits/9+1, ) )
         return;
-
-    long carry = 0;
-    long index;
-
-    for (index = 1; index < multipliedSize+1 ; index++){
-        //couter start by 1 couse the first long is the sign
-        twoDimArray[counter][counter + index - 1] =  (multiplier [counter+1] * multiplied [index]) + carry;
-        printf("%ld \n" , twoDimArray[counter][counter + index - 1] );
-        carry = arrangeCarry(& twoDimArray[counter][counter + index-1]);
-        // if (carry > 0){
-        //     twoDimArray[counter][counter + index] = carry ;
-        //}
+    else {
 
     }
-    recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
-}
 
+
+    return counter;
+}
+*/
 void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
     //finished the calculating
     if (counter == multiplierSize)
@@ -328,15 +319,13 @@ long *subTwoArrays(long *toSubFrom, long *substructor, long toSubFromSize, long 
         result[max]=bigger[max-1];
     return result;
 }
-void calcMult(struct bignum* first,struct bignum* second) {
-    struct bignum *first = s->firstBignum[s->size - 1];
-    struct bignum *second = s->firstBignum[s->size - 2];
+struct bignum* calcMult(struct bignum* first,struct bignum* second) {
     long *multiplier = convertToArray(first);
     long *multiplied = convertToArray(second);
-    long * finalAnswer;
     long multiplierSize = first->numberOfDigits / 9 + 1;
     long multipliedSize = second->numberOfDigits / 9 + 1;
     //check greater or equal without sign bit
+    long * finalAnswer;
     if (isGE(multiplier + 1, multiplier + 1, multiplierSize, multipliedSize)) {
         long tmp = multipliedSize;
         multipliedSize = multiplierSize;
@@ -347,12 +336,13 @@ void calcMult(struct bignum* first,struct bignum* second) {
     }
     long max = multiplierSize + multipliedSize;
     finalAnswer = getFinalMult (multiplied, multiplier, multipliedSize, multiplierSize, max);
-    push(convertTObignum(finalAnswer,max),s);
     free(multiplied);
     free(multiplier);
+    return convertTObignum(finalAnswer,max);
 }
 struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
-    printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
+   // printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
+return first;
 }
 struct bignum* calcSum(struct bignum* first,struct bignum* second) {
     long firstNewSize = first->numberOfDigits/9+1;
