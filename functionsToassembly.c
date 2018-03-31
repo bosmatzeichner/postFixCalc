@@ -2,6 +2,7 @@
 // Created by hod on 30/03/18.
 //
 #include "main.h"
+#include <malloc.h>
 
 int compare(struct bignum *number1, struct bignum *number2) {//return |number1|-|number2| (sort-of)
     if(number1->numberOfDigits>number2->numberOfDigits){
@@ -41,24 +42,24 @@ void subTwoArrays(long *bigger, const long *smaller, long max, long min,long *re
     if(min!=max)
         result[max]=bigger[max-1];
 }
-long getCarry(long number){
-    if (number>999999999){
-        number=number/1000000000;
-        return number;
-    }
-    return 0;
-}
-long arrangeCarry(long *cellToChange) {
-    long carry = getCarry(*cellToChange);
-    if(carry>0)
-        *cellToChange = *cellToChange-getResult(carry);//setting result[i] to be the actual result it should have
-    return carry;
-}
-long getResult(long carry) {
-    long j = carry;
-    j=j*1000000000;
-    return j;
-}
+//long getCarry(long number){
+//    if (number>999999999){
+//        number=number/1000000000;
+//        return number;
+//    }
+//    return 0;
+//}
+//long arrangeCarry(long *cellToChange) {
+//    long carry = getCarry(*cellToChange);
+//    if(carry>0)
+//        *cellToChange = *cellToChange-getResult(carry);//setting result[i] to be the actual result it should have
+//    return carry;
+//}
+//long getResult(long carry) {
+//    long j = carry;
+//    j=j*1000000000;
+//    return j;
+//}
 void addingTwoArrays(const long bigger[], const long smaller[], long max, long min, long result[]) {
     long carry=0;
     for(long i=0;i<min;i++){
@@ -70,4 +71,14 @@ void addingTwoArrays(const long bigger[], const long smaller[], long max, long m
         carry = arrangeCarry(result+min+1);
     }
     result[max]=result[max]+carry;
+}
+void freeBignum(struct bignum *number) {
+    free(number->digit);
+    free(number);
+}
+void freeStack(struct stack *s) {
+    for (struct bignum** number=s->firstBignum;number<s->firstBignum+s->size;number++){
+        freeBignum(*number);
+    }
+    free(s);
 }

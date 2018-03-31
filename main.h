@@ -18,8 +18,8 @@ struct stack {
     struct bignum* firstBignum[1024];
 }stack;void addDigit(char c, struct bignum* number);
 long getLongValue(const char* digits, long end, long begin);
-long getCarry(long number);
-long getResult(long carry);
+extern long getCarry(long number);
+extern long getResult(long carry);
 long arrangeCarry(long *cellToChange);
 
 long *convertToArray(struct bignum* number);

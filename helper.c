@@ -12,22 +12,25 @@ struct bignum* convertTObignum(long array[],long size){
     num->digit = malloc(sizeof(char)*size*9+1);
     num->capacity = size*9+1;
     char* temp= num->digit;
-//    char* buckup = num->digit;
     num->digit[size*9]='\0';
     for (long i=0;i<size-1;i++,temp+=9) {
         sprintf(temp, "%09ld", array[size-1-i]);
     }
     long i=0;
     for(;i<size*9&&num->digit[i]=='0';i++){}
-    num->digit= num->digit+i;
+    char*newdigit =malloc(sizeof(char)*num->numberOfDigits);
+    for(long j = 0;j<size*9;j++){
+        newdigit[j]=num->digit[i+j];
+    }
+    free(num->digit);
+    num->digit=newdigit;
     num->sign=1;
     if (isNegative){
         num->sign=-1;
     }
     num->numberOfDigits= (long) strlen(num->digit);
     free(array);
-//    realloc(num->digit,(size_t)num->numberOfDigits);
-//    free(buckup);
+
     return num;
 
 }
@@ -197,22 +200,19 @@ void printNumber(struct bignum *number) {
     printf("{\n\tsign: %d\n\tcapacity: %ld\n\tnumberOfDigits: %ld\n\tdigits: %s\n\t}\n",number->sign
             ,number->capacity,number->numberOfDigits, number->digit);
 }
-void freeBignum(struct bignum *number) {
-    free(number->digit);
-    free(number);
-}
-void freeStack(struct stack *s) {
-    for (struct bignum** number=s->firstBignum;number<s->firstBignum+s->size;number++){
-        freeBignum(*number);
-    }
-    free(s);
-}
+
 
 void minimizeBignumDigits(struct bignum *number) {
     long i=0;
     for(;i<number->numberOfDigits*9&&number->digit[i]=='0';i++){}
-    number->digit= number->digit+i;
+//    number->digit= number->digit+i;
     number->numberOfDigits=number->numberOfDigits-i;
+    char*newdigit =malloc(sizeof(char)*number->numberOfDigits);
+    for(long j = 0;j<number->numberOfDigits+i;j++){
+        newdigit[j]=number->digit[i+j];
+    }
+    free(number->digit);
+    number->digit=newdigit;
 }
 
 

@@ -77,8 +77,8 @@ struct bignum* calcSum(struct bignum* first,struct bignum* second) {
             result[0]=1;
         }
     }
-    free(first);
-    free(second);
+    freeBignum(first);
+    freeBignum(second);
     free(bigger);
     free(smaller);
     return convertTObignum(result,max+1);
@@ -92,6 +92,7 @@ struct bignum* calcSub(struct bignum* first,struct bignum* second) {
 
 
 void execute_p(struct stack *s) {//TODO remove
+    printNumber(peek(s));
     if(peek(s)->sign==-1)
         putchar('-');
     printf("%s\n",peek(s)->digit);
