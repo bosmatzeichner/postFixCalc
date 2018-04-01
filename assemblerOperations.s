@@ -67,6 +67,7 @@ section .text
     global getResult
     global arrangeCarry
     global addingTwoArrays
+    global subTwoArrays
 getCarry:
     push rbp ; backup RBP
     mov rbp, rsp
@@ -122,7 +123,7 @@ addingTwoArrays:
     mov qword [rbp-40], A3  ; rbp-40 = length of smaller array
     mov qword [rbp-48], A4  ; rbp-48 = pointer to result array
     mov qword [rbp-56], 0   ; rbp-56 = 0 (current carry)
-    mov qword [rbp-64], 0          ; passing 0 to rbx as counter for the memory
+    mov qword [rbp-64], 0          ; passing 0 to rbp-64 as counter for the memory
     .firstLoop:
         mov rdi,qword [rbp-48]   ; moving pointer to result array to rdi
         mov rsi,qword [rbp-16]   ; moving pointer to bigger array to rsi
@@ -171,4 +172,68 @@ addingTwoArrays:
         mov rsp, rbp ; move RBP to RSP
         pop rbp ; restore old RBP
         ret
-        
+subTwoArrays:
+    push rbp ; backup RBP
+    mov rbp, rsp
+    sub rsp, 72             ; giving rsp the space it needs for the parameters
+    mov qword [rbp-16], A0  ; rbp-16 = pointer to bigger array
+    mov qword [rbp-24], A1  ; rbp-24 = pointer to smaller array
+    mov qword [rbp-32], A2  ; rbp-32 = length of bigger array
+    mov qword [rbp-40], A3  ; rbp-40 = length of smaller array
+    mov qword [rbp-48], A4  ; rbp-48 = pointer to result array
+    mov qword [rbp-56], 0   ; rbp-56 = 0 (current borrow)
+    mov qword [rbp-64], 0   ; rbp-64 = 0 (long i = 0->for the loop)
+    mov rcx, qword [rbp-32] ; setting rcx with the value of the counter
+    .loop:
+        mov rdi, qword [rbp-64] ; copying current i
+        mov rax, qword [rbp-16] ; copying pointer to bigger array
+        mov rax, qword [rax+rdi*8]  ; copying value of bigger[i]
+        mov rbx, qword [rbp-24] ; copying pointer to smaller array
+        mov rbx, qword [rbx+rdi*8]  ;copying value of smaller[i]
+        sub rax, rbx    ; subtracting the firsts cells in both arrys to get the first borrow
+        mov [rbp-56], rax       ; borrow = bigger[i]-smaller[i]
+        mov rdx, qword [rbp-64]  ; saving i in rdx
+        mov rsi, qword [rbp-40]   ; saving length of smaller array
+        sub rsi,rdx               ; rsi=rsi-rdx=min-i
+        cmp rsi,0              ; if(i<min)
+        jg .continue           ; dont change nothing
+        mov rax, qword [rbp-16] ; copying pointer to bigger array
+        mov rax, qword [rax+rdi*8]  ; copying value of bigger[i]
+        mov qword [rbp-56], rax       ; borrow = bigger[i]
+    .continue:
+        cmp rax,0                 ; if borrow<0
+        JGE .finishRound         ; it means that there is no borrow
+        nop
+        mov rbx, qword [rbp-16]       ; copying pointer to bigger array
+        lea rsi,[rbx+rdi*8+8]           ;bigger[i+1]--
+        mov rdx, [rsi]
+        dec rdx                       
+        mov [rsi], rdx
+        add rax, qword 1000000000         ; borrow+=1000000000
+        mov qword [rbp-56], rax     ; copying current borrow in the stack
+    .finishRound:
+        mov rbx,qword [rbp-48]           ; copying result array pointer
+        lea rbx, [rbx+rdi*8+8]      ; copying address of result[i+1]
+        mov rax, qword [rbp-56]     ; saving borrow in rax
+        mov [rbx], rax              ; result[i+1]=borrow
+        inc rdi                     ; i++
+        mov [rbp-64], rdi
+        loop .loop
+    .finalAssignment:
+        mov rdi, qword [rbp-32]         ; moving bigger.length
+        mov rsi, qword [rbp-40]         ; moving smaller.length
+        sub rdi, rsi
+        cmp rdi, 0                      ; if(min!=max)
+        je .done
+        nop
+        mov rbx,qword [rbp-16]           ; rbx = &bigger
+        mov rax,qword [rbp-32]           ; rax = bigger.length
+        lea rcx, [rbx +rax*8-8]     ; rcx = &(bigger+max-1)
+        mov rdi,qword [rcx]              ; rdi=bigger[max-1]
+        mov rbx, qword [rbp-48]             ; rbx=&result
+        lea rcx, [rbx+rax*8]                ; rcx = result[max]
+        mov rcx, rdi                    ; result[max]=bigger[max-1]
+    .done:
+        mov rsp, rbp ; move RBP to RSP
+        pop rbp ; restore old RBP
+        ret

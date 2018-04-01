@@ -20,12 +20,12 @@ struct stack {
 long getLongValue(const char* digits, long end, long begin);
 extern long getCarry(long number);
 extern long getResult(long carry);
-long arrangeCarry(long *cellToChange);
+extern long arrangeCarry(long *cellToChange);
 
 long *convertToArray(struct bignum* number);
 struct bignum* convertTObignum(long array[],long size);
 void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
-void addingTwoArrays(const long first[],const long second[], long firstLength, long secondLength, long result[]);
+extern void addingTwoArrays(const long first[],const long second[], long firstLength, long secondLength, long result[]);
 struct stack;
 void push(struct bignum *number, struct stack* s);
 struct bignum *peek (struct stack *s);
@@ -38,7 +38,7 @@ extern struct bignum* calcDiv(struct bignum* first,struct bignum* second);
 extern void execute_p(struct stack *s);
 extern void execute_c(struct stack *s);
 long *sumTwoDimArray(long **twoDimArray, long max);
-void subTwoArrays(long *bigger,const long *smaller, long max, long min, long *result);
+extern void subTwoArrays(long *bigger,const long *smaller, long max, long min, long *result);
 
 int isEqualZeroOrOne(const long *a, long aSize);
 bool isGE(const long* first,const long* second, long firstSize, long secondSize);

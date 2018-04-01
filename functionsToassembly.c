@@ -18,30 +18,23 @@ int compare(struct bignum *number1, struct bignum *number2) {//return |number1|-
     }
     return 0;
 }
-void subTwoArrays(long *bigger, const long *smaller, long max, long min,long *result) {
-    long borrow=0;
-    borrow=bigger[0]-smaller[0];
-    for(long i=0;i<max;i++){
-        if(i<min){
-            borrow=bigger[i]-smaller[i];
-            if(borrow<0){
-                bigger[i+1]--;
-                borrow+=1000000000;
-            }
-            result[i+1]=borrow;
-        }
-        else{
-            borrow=bigger[i];
-            if(borrow<0){
-                bigger[i+1]--;
-                borrow+=1000000000;
-            }
-            result[i+1]=borrow;
-        }
-    }
-    if(min!=max)
-        result[max]=bigger[max-1];
-}
+//void subTwoArrays(long *bigger, const long *smaller, long max, long min,long *result) {
+//    long borrow=0;
+//    borrow=bigger[0]-smaller[0];
+//    for(long i=0;i<max;i++){
+//        if(i<min)
+//            borrow=bigger[i]-smaller[i];
+//        else
+//            borrow=bigger[i];
+//        if(borrow<0){
+//            bigger[i+1]--;
+//            borrow+=1000000000;
+//            }
+//        result[i+1]=borrow;
+//    }
+//    if(min!=max)
+//        result[max]=bigger[max-1];
+//}
 //long getCarry(long number){
 //    if (number>999999999){
 //        number=number/1000000000;
