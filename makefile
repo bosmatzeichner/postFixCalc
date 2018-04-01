@@ -7,6 +7,7 @@ helper.o:  helper.c main.h
 functionsToassembly.o: functionsToassembly.c main.h
 	gcc -g -Wall -c -o functionsToassembly.o functionsToassembly.c
 assemblerOperations.o: assemblerOperations.s
+	nasm -f elf64 assemblerOperations.s -l asm.list
 	nasm -g -f elf64 -w+all -o assemblerOperations.o assemblerOperations.s
 .PHONY: clean
 clean:

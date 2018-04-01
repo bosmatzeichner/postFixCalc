@@ -18,12 +18,13 @@ struct bignum* convertTObignum(long array[],long size){
     }
     long i=0;
     for(;i<size*9&&num->digit[i]=='0';i++){}
-    char*newdigit =malloc(sizeof(char)*num->numberOfDigits);
-    for(long j = 0;j<size*9;j++){
-        newdigit[j]=num->digit[i+j];
-    }
-    free(num->digit);
-    num->digit=newdigit;
+    num->digit=num->digit+i;
+//    char*newdigit =malloc(sizeof(char)*num->numberOfDigits+1);
+//    for(long j = 0;j<size*9;j++){
+//        newdigit[j]=num->digit[i+j];
+//    }
+//    free(num->digit);
+//    num->digit=newdigit;
     num->sign=1;
     if (isNegative){
         num->sign=-1;

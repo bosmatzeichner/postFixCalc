@@ -60,18 +60,18 @@ void subTwoArrays(long *bigger, const long *smaller, long max, long min,long *re
 //    j=j*1000000000;
 //    return j;
 //}
-void addingTwoArrays(const long bigger[], const long smaller[], long max, long min, long result[]) {
-    long carry=0;
-    for(long i=0;i<min;i++){
-        result[i+1]=bigger[i]+smaller[i]+carry;
-        carry=arrangeCarry(result+i+1);
-    }
-    for(;min<max;min++){
-        result[min+1]=bigger[min]+carry;
-        carry = arrangeCarry(result+min+1);
-    }
-    result[max]=result[max]+carry;
-}
+//void addingTwoArrays(const long bigger[], const long smaller[], long max, long min, long result[]) {
+//    long carry=0;
+//    for(long i=0;i<min;i++){
+//        result[i+1]=bigger[i]+smaller[i]+carry;
+//        carry=arrangeCarry(result+i+1);
+//    }
+//    for(;min<max;min++){
+//        result[min+1]=bigger[min]+carry;
+//        carry = arrangeCarry(result+min+1);
+//    }
+//    result[max]=result[max]+carry;
+//}
 void freeBignum(struct bignum *number) {
     free(number->digit);
     free(number);
