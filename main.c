@@ -23,7 +23,7 @@ struct bignum * pop(struct stack *s) {
 }
 // meir advice - multiply with binary counter
 struct bignum* calcMult(struct bignum* first,struct bignum* second) {
-
+    struct bignum **result = calloc(1,sizeof(long));
     struct bignum* multiplier = first;
     struct bignum* multiplied = second;
     if (compare(multiplier,multiplied) > 0 ) {
@@ -31,22 +31,49 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
       multiplied = multiplier;
       multiplier = tmp;
     }
-    long *multiplierArray = convertToArray(multiplier);
-    long *multipliedArray = convertToArray (multiplied);
-    long multiplierNewSize = multiplier->numberOfDigits/9+1;
-    long multipliedNewSize = multiplied->numberOfDigits/9+1;;
-    long **result = calloc(1,sizeof(long));
+    long firstNewSize = first->numberOfDigits/9+1;
+    long secondNewSize = second->numberOfDigits/9+1;
+    long* firstArr = convertToArray(first);
+    long* secondArr = convertToArray(second);
+    long sign = returnSignOfCalc(firstArr,secondArr);
+    long isEqualZeroOrOne1 = isEqualZeroOrOne(firstArr,firstNewSize);
+    long isEqualZeroOrOne2 = isEqualZeroOrOne(secondArr,secondNewSize);
 
-    long *factor = calloc(2,sizeof(long));
-        factor[0] = 1;
-        factor[1] = 1;
-    long **multiplierPTR = calloc(1, sizeof(first));
-    *multiplierPTR = multiplier;
-    long factorNewSize = 2;
 
-        recCalcMult2(multiplierPTR, multipliedArray, factor, result, multiplierNewSize+1, multipliedNewSize, factorNewSize);
+ /*  if (isEqualZeroOrOne1 == 0 || isEqualZeroOrOne2==0) {
+       long *resultArr =  calloc(2, sizeof(long));
+       resultArr[0] = sign;
+       resultArr[1] = 0;
+       *result = convertTObignum(resultArr,2);
+       freeBignum(convertTObignum(firstArr,firstNewSize));
+       freeBignum(convertTObignum(secondArr,secondNewSize));
+   }
+   else if(isEqualZeroOrOne1 == 1 || isEqualZeroOrOne2==1){
+       if (isEqualZeroOrOne1 == 1) {
+           *result = convertTObignum(secondArr, secondNewSize);
+           freeBignum(convertTObignum(firstArr,firstNewSize));
+       }
+       else{
+           *result = convertTObignum(firstArr,firstNewSize);
+           freeBignum(convertTObignum(secondArr,secondNewSize));
+       }
+   }
+    else{    */
 
-    return convertTObignum(*result, sizeof(result));
+     //  multiplied = convertTObignum(firstArr, (firstNewSize-1)*9);
+      // multiplier = convertTObignum(secondArr, secondNewSize);
+       struct bignum **multiplierPTR = calloc(1, sizeof(first));
+       *multiplierPTR = multiplier;
+       long *factor = calloc(2,sizeof(long));
+       factor[0] = 1;
+       factor[1] = 1;
+       struct bignum* factorPTR = convertTObignum(factor, 2);
+       long *resultArr = calloc(2,sizeof(long));
+       resultArr[0] = 1;
+       *result = convertTObignum(resultArr, 2);
+       recCalcMult1(multiplierPTR, multiplied, factorPTR, result );
+//    }
+    return *result;
 }
 
 struct bignum* calcDiv(struct bignum* first,struct bignum* second) {

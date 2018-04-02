@@ -39,6 +39,7 @@ extern void execute_p(struct stack *s);
 extern void execute_c(struct stack *s);
 long *sumTwoDimArray(long **twoDimArray, long multiplierSize, long max);
 extern void subTwoArrays(long *bigger,const long *smaller, long max, long min, long *result);
+void recCalcMult1(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result);
 void recCalcMult2(struct bignum** multiplier, long *multiplied, long* factor, long** result, long multiplierNewSize,long multipliedNewSize, long factorNewSize);
 int isEqualZeroOrOne(const long *a, long aSize);
 bool isGE(const long* first,const long* second, long firstSize, long secondSize);
@@ -52,5 +53,10 @@ void printNumber(struct bignum *number);
 void freeBignum(struct bignum *number);
 void freeStack(struct stack* s);
 void minimizeBignumDigits(struct bignum *number);
+
+
+
+struct bignum* calcSumWithoutFree(struct bignum* first,struct bignum* second);
+struct bignum* calcSubWithoutFree(struct bignum* first,struct bignum* second);
 
 #endif //POSTFIXCALC_MAIN_H

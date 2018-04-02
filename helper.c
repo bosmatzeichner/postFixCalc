@@ -107,7 +107,67 @@ void addDigit(char c, struct bignum* number) {
         number->numberOfDigits--;
 }
 
+void recCalcMult1(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result) {
 
+    if (compare(*multiplier,factor) < 0){
+       return;
+    }
+    else {
+        struct bignum *newFactor = calcSumWithoutFree(factor, factor);
+        struct bignum *newResult = calcSumWithoutFree(multiplied, multiplied);
+        recCalcMult1(multiplier, newResult, newFactor, result);
+        freeBignum(newFactor);
+        freeBignum(newResult);
+        if (compare(*multiplier,factor) >= 0){
+            struct bignum *newMultiplier = calcSubWithoutFree(factor,*multiplier);
+            newResult = calcSumWithoutFree(multiplied,*result);
+            free(*result);
+            free(*multiplier);
+            *result = newResult;
+            *multiplier = newMultiplier;
+        }
+
+
+    }
+}
+struct bignum* calcSumWithoutFree(struct bignum* first,struct bignum* second) {
+    long firstNewSize = first->numberOfDigits/9+1;
+    long secondNewSize = second->numberOfDigits/9+1;;
+    long max = secondNewSize;
+    long min = firstNewSize;
+    long* smaller = convertToArray(first);
+    long* bigger = convertToArray(second);
+    bool firstGreaterOrEqualtoSecond =compare(first,second)>0;
+    if(firstGreaterOrEqualtoSecond){//if first number size is smaller then the second
+        max=firstNewSize;
+        min = secondNewSize;
+        smaller = convertToArray(second);
+        bigger = convertToArray(first);
+    }
+    long *result= calloc((size_t)max+1, sizeof(long));
+
+    if(bigger[0]==smaller[0]) {
+        addingTwoArrays(bigger+1, smaller+1, max, min,result);
+        result[0]=bigger[0];
+    }
+    else{
+        subTwoArrays(bigger+1,smaller+1,max,min,result);
+        if(bigger[0]==-1){//if the bigger is negative
+            result[0]=-1;
+        }
+        else{
+            result[0]=1;
+        }
+    }
+    free(bigger);
+    free(smaller);
+    struct bignum* answer = convertTObignum(result,max+1);
+    return answer;
+}
+struct bignum* calcSubWithoutFree(struct bignum* first,struct bignum* second) {
+    negateNumber(first);
+    return calcSumWithoutFree(first,second);
+}
 void recCalcMult2(struct bignum** multiplier, long *multiplied, long* factor, long** result, long multiplierNewSize,long multipliedNewSize, long factorNewSize) {
 
 
@@ -119,7 +179,7 @@ void recCalcMult2(struct bignum** multiplier, long *multiplied, long* factor, lo
         *result[0] = 1;
     }
     else {
-     //   *multiplier = convertToArray(multiplierBig);
+        //   *multiplier = convertToArray(multiplierBig);
         factor = convertToArray(factorBig);
         long size = factorNewSize;
         long *newFactor = calloc(sizeof(long), size );
@@ -131,15 +191,15 @@ void recCalcMult2(struct bignum** multiplier, long *multiplied, long* factor, lo
 
         recCalcMult2(multiplier, newResult, newFactor, result, multiplierNewSize, multipliedNewSize, factorNewSize);
 
-       /////////////////
-     //   free(newFactor);
-     //   free(newResult);
-////////////////
+        /////////////////
+        //   free(newFactor);
+        //   free(newResult);
+////////////////multiplied wes deleted
         factorBig = convertTObignum(factor, factorNewSize);
         if (compare(*multiplier,factorBig) > 0) {
+            long *newResult = calloc(sizeof(long), size );
             long *newMultiplier = calloc(sizeof(long), multipliedNewSize);
             long *multiplierArray = convertToArray(*multiplier);
-
             subTwoArrays(multiplierArray + 1, factor + 1, multipliedNewSize, factorNewSize, newMultiplier);
             addingTwoArrays(multiplied + 1, *result + 1, multipliedNewSize, multipliedNewSize , newResult);
             free(*result);
