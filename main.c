@@ -23,30 +23,28 @@ struct bignum * pop(struct stack *s) {
 }
 // meir advice - multiply with binary counter
 struct bignum* calcMult(struct bignum* first,struct bignum* second) {
-    long *result= calloc(2, sizeof(long));
-    result[0] = 1;
-    struct bignum** resultArr = calloc(1, sizeof(first));
-    *resultArr = convertTObignum(result,2);
 
-   struct bignum* multiplier;
-   multiplier = calcSum(first, *resultArr);
-   struct bignum* multiplied;
-   multiplied = calcSum(second,*resultArr);
-
-   /* if (compare(multiplier,multiplied) > 0 ) {
+    struct bignum* multiplier = first;
+    struct bignum* multiplied = second;
+    if (compare(multiplier,multiplied) > 0 ) {
       struct bignum* tmp = multiplied;
       multiplied = multiplier;
       multiplier = tmp;
-    }*/
-        struct bignum **multiplierBignum = calloc(1, sizeof(first));
-        *multiplierBignum = multiplier;
-        long *factor = calloc(2,sizeof(long));
+    }
+    long *multiplierArray = convertToArray(multiplier);
+    long *multipliedArray = convertToArray (multiplied);
+
+    long **result = calloc(1,sizeof(long));
+
+    long *factor = calloc(2,sizeof(long));
         factor[0] = 1;
         factor[1] = 1;
-        struct bignum *factorBig = convertTObignum(factor,2);
-        recCalcMult2(multiplierBignum, multiplied, factorBig, resultArr);
+    long **multiplierPTR = calloc(1, sizeof(first));
+    *multiplierPTR = multiplierArray;
 
-    return *resultArr;
+        recCalcMult2(multiplierPTR, multipliedArray, factor, result);
+
+    return convertTObignum(*result, sizeof(result));
 }
 
 struct bignum* calcDiv(struct bignum* first,struct bignum* second) {

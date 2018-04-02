@@ -106,22 +106,28 @@ void addDigit(char c, struct bignum* number) {
     if(c=='\0')
         number->numberOfDigits--;
 }
-void recCalcMult2(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result) {
 
-    if (compare(*multiplier,factor) < 0){
-        *result = convertTObignum(calloc(sizeof(long), 2 ), 2);
+
+void recCalcMult2(long** multiplier, long * multiplied, long* factor, long** result) {
+
+    if (isGE(*multiplier,factor, sizeof(*multiplier), sizeof(factor)) < 0){
+        *result = calloc(sizeof(long), 2 );
+        *result[0] = 1;
     }
     else {
-        struct bignum *newFactor = calcSum(factor, factor);
-        struct bignum *newResult = calcSum(multiplied, multiplied);
+        long *newFactor = calloc(sizeof(long), sizeof(factor)+1 );
+        addingTwoArrays(factor+1, factor+1, sizeof(factor), sizeof(factor), newFactor);
+        long *newResult = calloc(sizeof(long), sizeof(multiplied)+1 );
+        addingTwoArrays(multiplied+1, multiplied+1, sizeof(multiplied),sizeof(multiplied), newResult);
         recCalcMult2(multiplier, newResult, newFactor, result);
-        freeBignum(newFactor);
-        freeBignum(newResult);
-        if (compare(*multiplier,factor) >= 0){
-            //newFactor = calcSub(multiplier, result[1]); // sub factor
-            struct bignum *newMultiplier = calcSub(*multiplier, factor);
-            newResult = calcSum(multiplied,*result); // sub
+        free(newFactor);
+        free(newResult);
+        if (isGE(*multiplier,factor, sizeof(*multiplier), sizeof(factor)) >= 0){
+            long *newMultiplier ;
+            subTwoArrays(*multiplier, factor, sizeof(*multiplier), sizeof(factor), newMultiplier);
+            addingTwoArrays(multiplied+1, *result+1 , sizeof(multiplied),sizeof(*result), newResult);
             free(*result);
+            free (*multiplier);
             *result = newResult;
             *multiplier = newMultiplier;
         }
