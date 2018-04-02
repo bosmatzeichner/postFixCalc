@@ -115,16 +115,25 @@ void recCalcMult2(long** multiplier, long * multiplied, long* factor, long** res
         *result[0] = 1;
     }
     else {
-        long *newFactor = calloc(sizeof(long), sizeof(factor)+1 );
-        addingTwoArrays(factor+1, factor+1, sizeof(factor), sizeof(factor), newFactor);
-        long *newResult = calloc(sizeof(long), sizeof(multiplied)+1 );
-        addingTwoArrays(multiplied+1, multiplied+1, sizeof(multiplied),sizeof(multiplied), newResult);
+
+        long size = sizeof(factor)/9+1;
+
+        long *newFactor = calloc(sizeof(long), size+1 );
+        addingTwoArrays(factor+1, factor+1, size, size, newFactor);
+
+        size = sizeof(multiplied)/9+1;
+
+        long *newResult = calloc(sizeof(long), size+1 );
+        size = sizeof(multiplied);
+        addingTwoArrays(multiplied+1, multiplied+1, size,size, newResult);
+
         recCalcMult2(multiplier, newResult, newFactor, result);
+
         free(newFactor);
         free(newResult);
         if (isGE(*multiplier,factor, sizeof(*multiplier), sizeof(factor)) >= 0){
             long *newMultiplier ;
-            subTwoArrays(*multiplier, factor, sizeof(*multiplier), sizeof(factor), newMultiplier);
+            subTwoArrays(*multiplier+1, factor+1, sizeof(*multiplier), sizeof(factor), newMultiplier);
             addingTwoArrays(multiplied+1, *result+1 , sizeof(multiplied),sizeof(*result), newResult);
             free(*result);
             free (*multiplier);
