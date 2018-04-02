@@ -6,6 +6,8 @@
 #include <string.h>
 #include "main.h"
 
+
+
 struct bignum* convertTObignum(long array[],long size){
     bool isNegative=array[0]==-1;
     struct bignum* num=malloc(sizeof(*num));
@@ -104,24 +106,48 @@ void addDigit(char c, struct bignum* number) {
     if(c=='\0')
         number->numberOfDigits--;
 }
-void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
-    //finished the calculating
-    if (counter == multiplierSize)
-        return;
+void recCalcMult2(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result) {
 
+    if (compare(*multiplier,factor) < 0){
+        *result = convertTObignum(calloc(sizeof(long), 2 ), 2);
+    }
+    else {
+        struct bignum *newFactor = calcSum(factor, factor);
+        struct bignum *newResult = calcSum(multiplied, multiplied);
+        recCalcMult2(multiplier, newResult, newFactor, result);
+        freeBignum(newFactor);
+        freeBignum(newResult);
+        if (compare(*multiplier,factor) >= 0){
+            //newFactor = calcSub(multiplier, result[1]); // sub factor
+            struct bignum *newMultiplier = calcSub(*multiplier, factor);
+            newResult = calcSum(multiplied,*result); // sub
+            free(*result);
+            *result = newResult;
+            *multiplier = newMultiplier;
+        }
+
+
+    }
+}
+/*void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
+    //finished the calculating
+    if (counter == multiplierSize) {
+        return;
+    }
     long carry = 0;
     long index;
 
-    for (index = 1; index < multipliedSize ; index++){
+    for (index = 0; index < multipliedSize ; index++){
         //couter start by 1 couse the first long is the sign
-        twoDimArray[counter - 1][counter + index - 1] =  multiplier [counter] * multiplied [index] + carry;
-        carry = arrangeCarry(& twoDimArray[counter - 1][index-1]);
+        twoDimArray[counter][counter + index + 1] =  multiplier [counter] * multiplied [index+1] + carry;
+        carry = arrangeCarry(& twoDimArray[counter][counter + index+1]);
     }
-    if (carry > 0){
-        twoDimArray[counter - 1][counter + index] = carry ;
-    }
+   // if (carry > 0){
+   //     twoDimArray[counter - 1][counter + index] = carry ;
+   // }
     recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
 }
+*/
 int isEqualZeroOrOne(const long *a, long aSize) {
     int con;
     if (a[1] != 1) {
@@ -144,12 +170,13 @@ int isEqualZeroOrOne(const long *a, long aSize) {
     }
     return con;
 }
-long *returnZeroOrOneArray(long eqZeroOrOne, long sign) {
+long *returnZeroOrOneArray(long eqZeroOrOne1,long eqZeroOrOne2, long sign) {
     //check for cases of 0\1
     long *finalAnswer = calloc(2, sizeof(long));
-    if (eqZeroOrOne == 0) {
+    if (eqZeroOrOne1 == 0 || eqZeroOrOne2==0) {
         finalAnswer[0] = sign;
-    } else if (eqZeroOrOne == 1) {
+        finalAnswer[1] = 0;
+    } else if (eqZeroOrOne1 == 1 || eqZeroOrOne2 == 1) {
         finalAnswer[0] = sign;
         finalAnswer[1] = 1;
     }
@@ -161,10 +188,11 @@ long returnSignOfCalc(const long *multiplied, const long *multiplier) {
     else
         return 1;
 }
-long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max) {
+/*long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max) {
     long **answer;
     long *finalAnswer;
-    long sign = returnSignOfCalc(multiplied, multiplier);
+    long sign;
+    sign = returnSignOfCalc(multiplied, multiplier);
     long secEqZeroOrOne;
     secEqZeroOrOne = isEqualZeroOrOne(multiplier, multiplierSize);
     if (secEqZeroOrOne == 0 || secEqZeroOrOne == 1) {
@@ -176,8 +204,8 @@ long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long
             answer[i] = calloc((size_t)max, sizeof(long));
         }
         long counter = 0;
-        recCalcMult(answer, counter, multiplied, multiplier, multipliedSize, multiplierSize);
-        finalAnswer =  sumTwoDimArray(answer, max);
+       // recCalcMult(answer, counter, multiplied, multiplier, multipliedSize, multiplierSize);
+        finalAnswer =  sumTwoDimArray(answer, multiplierSize, max);
         finalAnswer[0] = sign;
         //free any array !
         for(long i=0; i<multiplierSize; i++){
@@ -186,13 +214,13 @@ long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long
         free(answer);
     }
     return finalAnswer;
-}
-long *sumTwoDimArray(long **twoDimArray, long max) {
+}*/
+long *sumTwoDimArray(long **twoDimArray, long multiplierSize, long max) {
     long i;
     long *finalArray;
     finalArray = calloc((size_t) max, sizeof(long));
-    for ( i = 0; i < sizeof(twoDimArray); i++ ){
-        addingTwoArrays(finalArray, twoDimArray[i], max, max, finalArray);
+    for ( i = 0; i < multiplierSize; i++ ){
+        addingTwoArrays(finalArray+1, twoDimArray[i], max, max, finalArray+1);
     }
     return finalArray;
 }

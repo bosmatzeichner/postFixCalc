@@ -37,14 +37,14 @@ extern struct bignum* calcDiv(struct bignum* first,struct bignum* second);
 
 extern void execute_p(struct stack *s);
 extern void execute_c(struct stack *s);
-long *sumTwoDimArray(long **twoDimArray, long max);
+long *sumTwoDimArray(long **twoDimArray, long multiplierSize, long max);
 extern void subTwoArrays(long *bigger,const long *smaller, long max, long min, long *result);
-
+void recCalcMult2(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum* result[]);
 int isEqualZeroOrOne(const long *a, long aSize);
 bool isGE(const long* first,const long* second, long firstSize, long secondSize);
-long *returnZeroOrOneArray(long eqZeroOrOne, long sign) ;
+long *returnZeroOrOneArray(long eqZeroOrOne1,long eqZeroOrOne2, long sign) ;
 long returnSignOfCalc(const long *multiplied, const long *multiplier);
-long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max);
+//long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max);
 
 int compare(struct bignum *number1, struct bignum *number2);
 void negateNumber(struct bignum *number);

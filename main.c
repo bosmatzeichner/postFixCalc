@@ -23,25 +23,30 @@ struct bignum * pop(struct stack *s) {
 }
 // meir advice - multiply with binary counter
 struct bignum* calcMult(struct bignum* first,struct bignum* second) {
-    long *multiplier = convertToArray(first);
-    long *multiplied = convertToArray(second);
-    long multiplierSize = first->numberOfDigits / 9 + 1;
-    long multipliedSize = second->numberOfDigits / 9 + 1;
-    //check greater or equal without sign bit
-    long * finalAnswer;
-    if (isGE(multiplier + 1, multiplier + 1, multiplierSize, multipliedSize)) {//TODO change isGE to compareTO
-        long tmp = multipliedSize;
-        multipliedSize = multiplierSize;
-        multiplierSize = tmp;
-        long *tmpArray = multiplied;
-        multiplied = multiplier;
-        multiplier = tmpArray;
-    }
-    long max = multiplierSize + multipliedSize;
-    finalAnswer = getFinalMult (multiplied, multiplier, multipliedSize, multiplierSize, max);
-    free(multiplied);
-    free(multiplier);
-    return convertTObignum(finalAnswer,max);
+    long *result= calloc(2, sizeof(long));
+    result[0] = 1;
+    struct bignum** resultArr = calloc(1, sizeof(first));
+    *resultArr = convertTObignum(result,2);
+
+   struct bignum* multiplier;
+   multiplier = calcSum(first, *resultArr);
+   struct bignum* multiplied;
+   multiplied = calcSum(second,*resultArr);
+
+   /* if (compare(multiplier,multiplied) > 0 ) {
+      struct bignum* tmp = multiplied;
+      multiplied = multiplier;
+      multiplier = tmp;
+    }*/
+        struct bignum **multiplierBignum = calloc(1, sizeof(first));
+        *multiplierBignum = multiplier;
+        long *factor = calloc(2,sizeof(long));
+        factor[0] = 1;
+        factor[1] = 1;
+        struct bignum *factorBig = convertTObignum(factor,2);
+        recCalcMult2(multiplierBignum, multiplied, factorBig, resultArr);
+
+    return *resultArr;
 }
 
 struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
