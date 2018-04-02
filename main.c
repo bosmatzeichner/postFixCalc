@@ -33,16 +33,18 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
     }
     long *multiplierArray = convertToArray(multiplier);
     long *multipliedArray = convertToArray (multiplied);
-
+    long multiplierNewSize = multiplier->numberOfDigits/9+1;
+    long multipliedNewSize = multiplied->numberOfDigits/9+1;;
     long **result = calloc(1,sizeof(long));
 
     long *factor = calloc(2,sizeof(long));
         factor[0] = 1;
         factor[1] = 1;
     long **multiplierPTR = calloc(1, sizeof(first));
-    *multiplierPTR = multiplierArray;
+    *multiplierPTR = multiplier;
+    long factorNewSize = 2;
 
-        recCalcMult2(multiplierPTR, multipliedArray, factor, result);
+        recCalcMult2(multiplierPTR, multipliedArray, factor, result, multiplierNewSize+1, multipliedNewSize, factorNewSize);
 
     return convertTObignum(*result, sizeof(result));
 }

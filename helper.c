@@ -108,37 +108,44 @@ void addDigit(char c, struct bignum* number) {
 }
 
 
-void recCalcMult2(long** multiplier, long * multiplied, long* factor, long** result) {
+void recCalcMult2(struct bignum** multiplier, long *multiplied, long* factor, long** result, long multiplierNewSize,long multipliedNewSize, long factorNewSize) {
 
-    if (isGE(*multiplier,factor, sizeof(*multiplier), sizeof(factor)) < 0){
+
+    //struct bignum* multiplierBig = convertTObignum(*multiplier, multiplierNewSize);
+    struct bignum* factorBig = convertTObignum(factor, factorNewSize);
+
+    if (compare(*multiplier,factorBig) < 0){
         *result = calloc(sizeof(long), 2 );
         *result[0] = 1;
     }
     else {
-
-        long size = sizeof(factor)/9+1;
-
-        long *newFactor = calloc(sizeof(long), size+1 );
+     //   *multiplier = convertToArray(multiplierBig);
+        factor = convertToArray(factorBig);
+        long size = factorNewSize;
+        long *newFactor = calloc(sizeof(long), size );
         addingTwoArrays(factor+1, factor+1, size, size, newFactor);
 
-        size = sizeof(multiplied)/9+1;
-
-        long *newResult = calloc(sizeof(long), size+1 );
-        size = sizeof(multiplied);
+        size = multipliedNewSize;
+        long *newResult = calloc(sizeof(long), size );
         addingTwoArrays(multiplied+1, multiplied+1, size,size, newResult);
 
-        recCalcMult2(multiplier, newResult, newFactor, result);
+        recCalcMult2(multiplier, newResult, newFactor, result, multiplierNewSize, multipliedNewSize, factorNewSize);
 
-        free(newFactor);
-        free(newResult);
-        if (isGE(*multiplier,factor, sizeof(*multiplier), sizeof(factor)) >= 0){
-            long *newMultiplier ;
-            subTwoArrays(*multiplier+1, factor+1, sizeof(*multiplier), sizeof(factor), newMultiplier);
-            addingTwoArrays(multiplied+1, *result+1 , sizeof(multiplied),sizeof(*result), newResult);
+       /////////////////
+     //   free(newFactor);
+     //   free(newResult);
+////////////////
+        factorBig = convertTObignum(factor, factorNewSize);
+        if (compare(*multiplier,factorBig) > 0) {
+            long *newMultiplier = calloc(sizeof(long), multipliedNewSize);
+            long *multiplierArray = convertToArray(*multiplier);
+
+            subTwoArrays(multiplierArray + 1, factor + 1, multipliedNewSize, factorNewSize, newMultiplier);
+            addingTwoArrays(multiplied + 1, *result + 1, multipliedNewSize, multipliedNewSize , newResult);
             free(*result);
-            free (*multiplier);
+            free(*multiplier);
             *result = newResult;
-            *multiplier = newMultiplier;
+            *multiplier = convertTObignum(newMultiplier, multiplierNewSize);
         }
 
 

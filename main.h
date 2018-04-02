@@ -39,7 +39,7 @@ extern void execute_p(struct stack *s);
 extern void execute_c(struct stack *s);
 long *sumTwoDimArray(long **twoDimArray, long multiplierSize, long max);
 extern void subTwoArrays(long *bigger,const long *smaller, long max, long min, long *result);
-void recCalcMult2(long** multiplier, long * multiplied, long* factor, long** result);
+void recCalcMult2(struct bignum** multiplier, long *multiplied, long* factor, long** result, long multiplierNewSize,long multipliedNewSize, long factorNewSize);
 int isEqualZeroOrOne(const long *a, long aSize);
 bool isGE(const long* first,const long* second, long firstSize, long secondSize);
 long *returnZeroOrOneArray(long eqZeroOrOne1,long eqZeroOrOne2, long sign) ;
