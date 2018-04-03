@@ -135,6 +135,7 @@ addingTwoArrays:
     mov qword [rbp-48], A4  ; rbp-48 = pointer to result array
     mov qword [rbp-56], 0   ; rbp-56 = 0 (current carry)
     mov qword [rbp-64], 0          ; passing 0 to rbp-64 as counter for the memory
+    mov rbx, qword 0
     .firstLoop:
         mov rdi,qword [rbp-48]   ; moving pointer to result array to rdi
         mov rsi,qword [rbp-16]   ; moving pointer to bigger array to rsi
@@ -249,30 +250,38 @@ subTwoArrays:
         pop rbp ; restore old RBP
         ret
 
-;compare:
-;    push rbp ; backup RBP
-;    mov rbp, rsp
-;    sub rsp, 32             ; giving rsp the space it needs for the parameters
-;    mov qword [rbp-16], A0  ; rbp-16 = pointer to number1
-;    mov qword [rbp-24], A1  ; rbp-24 = pointer to number2
-;    mov rax,qword [A1+16]        ; rax = number2->numberOfDigits
-;    mov rdx, qword [A0+16]      ; rdx = number1->numberOfDigits
-;    cmp rdx,rax                 ; if (number1->numberOfDigits>number2->numberOfDigits)
-;    jle .retTrue                ; return 1
-;    jge .retFalse               ; return -1
-;    mov rcx, rax                ; moving number of digits to rcx as counter
-;    mov, rdi,0                  ; giving rdi the inc size for the loop
-;    .loop:
-;        mov rax, qword [rbp-16] ; rax = &number1
-;        mov rax, qword [rax+24] ; rax = number->digits
-        
-;    
-;    .retTrue:
-;        mov rax, 1      ; return 1
-;        jmp .return
-;    .retFalse:
-;        mov rax, -1     ; return -1
-;    .return:
-;        mov rsp, rbp ; move RBP to RSP
-;        pop rbp ; restore old RBP
-;        ret
+compare:
+    push rbp ; backup RBP
+    mov rbp, rsp
+    sub rsp, 32             ; giving rsp the space it needs for the parameters
+    mov qword [rbp-16], A0  ; rbp-16 = pointer to number1
+    mov qword [rbp-24], A1  ; rbp-24 = pointer to number2
+    mov rax,qword [A1+16]        ; rax = number2->numberOfDigits
+    mov rdx, qword [A0+16]      ; rdx = number1->numberOfDigits
+    cmp rdx,rax           ; if (number1->numberOfDigits>number2->numberOfDigits)
+    jg .retTrue                ; return 1
+    jl .retFalse               ; return -1
+    mov rcx, rax                ; moving number of digits to rcx as counter
+    mov rdi,0                  ; giving rdi the inc size for the loop
+    .loop:
+        mov rax, qword [rbp-16] ; rax = &number1
+        mov rax, qword [rax+24] ; rax = number->digits
+        mov rax, qword [rax +rdi*8] ; rax = number1->digits[i]
+        mov rdx, qword [rbp-24] ; rdx = &number2
+        mov rdx, qword [rdx+24] ; rdx = number2->digits
+        mov rdx, qword [rdx+rdi*8]  ; rdx = number2->digit[i]
+        cmp rdx,rax           ; if (number1->digits[i]>number2->digit[i])
+        jg .retTrue                ; return 1
+        jl .retFalse               ; return -1
+        loop .loop
+    mov rax,0
+    jmp .return
+    .retTrue:
+        mov rax, 1      ; return 1
+        jmp .return
+    .retFalse:
+        mov rax, -1     ; return -1
+    .return:
+        mov rsp, rbp ; move RBP to RSP
+        pop rbp ; restore old RBP
+        ret

@@ -11,7 +11,13 @@
 struct bignum* convertTObignum(long array[],long size){
     bool isNegative=array[0]==-1;
     struct bignum* num=malloc(sizeof(*num));
+    if (num==NULL)
+        exit(-1);
     num->digit = malloc(sizeof(char)*size*9+1);
+    if(num->digit==NULL){
+        free(num);
+        exit(-1);
+    }
     num->capacity = size*9+1;
     char* temp= num->digit;
     num->digit[size*9]='\0';
@@ -24,6 +30,9 @@ struct bignum* convertTObignum(long array[],long size){
     if(num->numberOfDigits==0)
         i--;
     char*newdigit =malloc(sizeof(char)*num->numberOfDigits+1);
+    if(newdigit==NULL){
+        exit(-1);
+    }
     for(long j = 0;num->digit[i+j]!='\0';j++){
         newdigit[j]=num->digit[i+j];
         newdigit[j+1]='\0';
@@ -42,7 +51,13 @@ struct bignum* convertTObignum(long array[],long size){
 struct bignum* convertTObignumWithoutFree(long array[],long size){
     bool isNegative=array[0]==-1;
     struct bignum* num=malloc(sizeof(*num));
+    if (num==NULL)
+        exit(-1);
     num->digit = malloc(sizeof(char)*size*9+1);
+    if(num->digit==NULL){
+        free(num);
+        exit(-1);
+    }
     num->capacity = size*9+1;
     char* temp= num->digit;
     num->digit[size*9]='\0';
@@ -55,6 +70,9 @@ struct bignum* convertTObignumWithoutFree(long array[],long size){
     if(num->numberOfDigits==0)
         i--;
     char*newdigit =malloc(sizeof(char)*num->numberOfDigits+1);
+    if(newdigit==NULL){
+        exit(-1);
+    }
     for(long j = 0;num->digit[i+j]!='\0';j++){
         newdigit[j]=num->digit[i+j];
         newdigit[j+1]='\0';
@@ -106,6 +124,8 @@ long *convertToArray(struct bignum* number){
     bool isNegative = number->sign==-1;
     long size = number->numberOfDigits/9+1;
     long* answer=calloc((size_t)size+1,sizeof(long));
+    if(answer==NULL)
+        exit(-1);
     long beginningOfLong=number->numberOfDigits-1;
     long endOfLong=beginningOfLong-8;
     if(isNegative)
@@ -129,6 +149,8 @@ void addDigit(char c, struct bignum* number) {
         number->capacity= number->capacity+MAX_SIZE;
         char* newNumber;
         newNumber=(char*) malloc(sizeof(char)*(number->capacity));
+        if(newNumber==NULL)
+            exit(-1);
         char*j= newNumber;
         for(char* i=number->digit; i < number->digit + number->numberOfDigits; i++,j++){
             *j=*i;
@@ -156,7 +178,8 @@ struct bignum* calcSumWithoutFree(struct bignum* first,struct bignum* second) {
         bigger = convertToArray(first);
     }
     long *result= calloc((size_t)max+1, sizeof(long));
-
+    if(result==NULL)
+        exit(-1);
     if(bigger[0]==smaller[0]) {
         addingTwoArrays(bigger+1, smaller+1, max, min,result);
         result[0]=bigger[0];
@@ -213,6 +236,8 @@ int isEqualZeroOrSign(struct bignum** multiplier,struct bignum** multiplied ) {
 }
 struct bignum* returnZeroArray(){
     long *resultArr =  calloc(2, sizeof(long));
+    if(resultArr==NULL)
+        exit(-1);
     resultArr[0] = 1;
     resultArr[1] = 0;
     return convertTObignum(resultArr,2);
@@ -244,6 +269,8 @@ void minimizeBignumDigits(struct bignum *number) {
         i--;
     number->numberOfDigits=number->numberOfDigits-i;
     char*newdigit =malloc(sizeof(char)*number->numberOfDigits);
+    if(newdigit==NULL)
+        exit(-1);
     for(long j = 0;j<number->numberOfDigits+i;j++){
         newdigit[j]=number->digit[i+j];
     }

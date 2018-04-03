@@ -154,7 +154,9 @@ int main() {
     struct bignum *first;
     struct bignum *second;
     enum state currState = notNumber;
-    struct stack *stack= malloc(sizeof(stack));
+    struct stack *stack= malloc(sizeof(struct stack));
+    if (stack==NULL)
+        return -1;
     char c;
     while ((c = (char) fgetc(stdin)) != 'q') {
         switch (currState) {
@@ -202,7 +204,13 @@ int main() {
                         break;
                         case '0'...'9':
                         currbignum=malloc(sizeof(*currbignum));
+                        if (currbignum==NULL)
+                            return -1;
                         currbignum->digit = malloc(sizeof(char)*MAX_SIZE);
+                        if (currbignum->digit==NULL){
+                            free(currbignum);
+                            return -1;
+                        }
                         currbignum->sign=1;
                         currbignum->capacity = MAX_SIZE;
                         currbignum->numberOfDigits=0;
@@ -211,8 +219,13 @@ int main() {
                         break;
                     case '_':
                         currbignum=malloc(sizeof(*currbignum));
+                        if (currbignum==NULL)
+                            return -1;
                         currbignum->digit = malloc(sizeof(char)*MAX_SIZE);
-                        currbignum->sign=-1;
+                        if (currbignum->digit==NULL){
+                            free(currbignum);
+                            return -1;
+                        }                        currbignum->sign=-1;
                         currbignum->capacity = MAX_SIZE;
                         currbignum->numberOfDigits=0;
                         currState = number;
@@ -222,8 +235,6 @@ int main() {
                 }
         }
     }
-    printf("exited\n");
-//    free(stack);
 }
 
 
