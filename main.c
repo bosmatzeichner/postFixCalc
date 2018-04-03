@@ -27,38 +27,38 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
     struct bignum* multiplier = first;
     struct bignum* multiplied = second;
     if (compare(multiplier,multiplied) > 0 ) {
-      struct bignum* tmp = multiplied;
-      multiplied = multiplier;
-      multiplier = tmp;
+        struct bignum* tmp = multiplied;
+        multiplied = multiplier;
+        multiplier = tmp;
     }
     int sign = isEqualZeroOrSign(&multiplier,&multiplied);
     if (sign==0) {
         *result = returnZeroArray();
         freeBignum(multiplied);
         freeBignum(multiplier);
-   }
+    }
     else{
 
-       struct bignum **multiplierPTR = calloc(1, sizeof(long)); /////
-       *multiplierPTR = multiplier;
+        struct bignum **multiplierPTR = calloc(1, sizeof(long)); /////
+        *multiplierPTR = multiplier;
 
-       long *factor = calloc(2,sizeof(long));
-       factor[0] = 1;
-       factor[1] = 1;
+        long *factor = calloc(2,sizeof(long));
+        factor[0] = 1;
+        factor[1] = 1;
 
-       struct bignum* factorPTR = convertTObignumWithoutFree(factor, 2);
-       long *resultArr = calloc(2,sizeof(long));
-       resultArr[0] = 1;
-       *result = convertTObignumWithoutFree(resultArr, 2);
-       recCalcMult(multiplierPTR, multiplied, factorPTR, result);
+        struct bignum* factorPTR = convertTObignumWithoutFree(factor, 2);
+        long *resultArr = calloc(2,sizeof(long));
+        resultArr[0] = 1;
+        *result = convertTObignumWithoutFree(resultArr, 2);
+        recCalcMult(multiplierPTR, multiplied, factorPTR, result);
         ((*result)->sign) = 1;
-       if (sign == -1){
-           resultArr = convertToArray(*result);
-           resultArr[0] = -1;
-           long resultSize = (*result)->numberOfDigits/9+1;
-           *result = convertTObignumWithoutFree(resultArr, resultSize+1);
-           ((*result)->sign) = -1;
-       }
+        if (sign == -1){
+            resultArr = convertToArray(*result);
+            resultArr[0] = -1;
+            long resultSize = (*result)->numberOfDigits/9+1;
+            *result = convertTObignumWithoutFree(resultArr, resultSize+1);
+            ((*result)->sign) = -1;
+        }
         free(factor);
         freeBignum(*multiplierPTR);
         free(multiplierPTR);
@@ -119,22 +119,18 @@ struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
 
     return *result;
 }
-struct bignum* calcSum(struct bignum* first,struct bignum* second) //toDo: pass the free comments to main or split function to sum and sum with freeing to able calcMult to work ok!
- {
+struct bignum* calcSum(struct bignum* first,struct bignum* second) {
     struct bignum* answer = calcSumWithoutFree(first,second);
     freeBignum(first);
     freeBignum(second);
     return answer;
 }
-struct bignum* calcSub(struct bignum* first,struct bignum* second)
- {
-     struct bignum* answer= calcSubWithoutFree(first,second);
-     freeBignum(first);
-     freeBignum(second);
-     return answer;
+struct bignum* calcSub(struct bignum* first,struct bignum* second) {
+    struct bignum* answer= calcSubWithoutFree(first,second);
+    freeBignum(first);
+    freeBignum(second);
+    return answer;
 }
-
-
 
 void execute_p(struct stack *s) {//TODO remove
 //    printNumber(peek(s));
@@ -202,7 +198,7 @@ int main() {
                     case 'c':
                         execute_c(stack);
                         break;
-                        case '0'...'9':
+                    case '0'...'9':
                         currbignum=malloc(sizeof(*currbignum));
                         if (currbignum==NULL)
                             return -1;

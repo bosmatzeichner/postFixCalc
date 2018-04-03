@@ -72,6 +72,8 @@ endstruc
 %define Loc11 local_var(x86frame64bitLocals.Loc11)
 section .text
     extern free
+    extern calcSumWithoutFree
+    extern calcSubWithoutFree
     global getCarry
     global getResult
     global arrangeCarry
@@ -79,6 +81,9 @@ section .text
     global subTwoArrays
     global compare
     global freeBignum
+    global recCalcMult
+    global recCalcDiv
+
 getCarry:
     push rbp ; backup RBP
     mov rbp, rsp
