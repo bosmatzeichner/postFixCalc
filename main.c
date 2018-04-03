@@ -107,7 +107,7 @@ struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
         freeBignum(*toDividePTR);
         free(toDividePTR);
         free(resultArr);
-
+//
     }
 
     freeBignum(divisor);
