@@ -159,8 +159,6 @@ void recCalcMult1(struct bignum** multiplier, struct bignum* multiplied, struct 
             *result = newResult;
             *multiplier = newMultiplier;
         }
-
-
     }
 }
 struct bignum* calcSumWithoutFree(struct bignum* first,struct bignum* second) {
@@ -205,7 +203,7 @@ int isEqualZeroOrSign(struct bignum** multiplier,struct bignum** multiplied ) {
     long multiplierNewSize = (*multiplier)->numberOfDigits/9+1;
     long multipliedNewSize = (*multiplied)->numberOfDigits/9+1;
     long* multiplierArr = convertToArray(*multiplier);
-    long* multipliedArr = convertToArray(*multiplier);
+    long* multipliedArr = convertToArray(*multiplied);
     int con = 0;
     for (long i = 1; con!=-1 && i <= multiplierNewSize; i++ ) {
         if (multiplierArr[i] != 0)
