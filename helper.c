@@ -39,6 +39,38 @@ struct bignum* convertTObignum(long array[],long size){
     return num;
 
 }
+struct bignum* convertTObignumWithoutFree(long array[],long size){
+    bool isNegative=array[0]==-1;
+    struct bignum* num=malloc(sizeof(*num));
+    num->digit = malloc(sizeof(char)*size*9+1);
+    num->capacity = size*9+1;
+    char* temp= num->digit;
+    num->digit[size*9]='\0';
+    for (long i=0;i<size-1;i++,temp+=9) {
+        sprintf(temp, "%09ld", array[size-1-i]);
+    }
+    long i=0;
+    for(;i<size*9&&num->digit[i]=='0';i++){}
+    num->numberOfDigits= (long) strlen(num->digit+i);
+    if(num->numberOfDigits==0)
+        i--;
+    char*newdigit =malloc(sizeof(char)*num->numberOfDigits+1);
+    for(long j = 0;num->digit[i+j]!='\0';j++){
+        newdigit[j]=num->digit[i+j];
+        newdigit[j+1]='\0';
+    }
+    free(num->digit);
+    num->digit=newdigit;
+    num->sign=1;
+    if (isNegative){
+        num->sign=-1;
+    }
+    //free(array);
+
+    return num;
+
+}
+
 bool isGE(const long* first,const long* second, long firstSize, long secondSize){
     long min=firstSize;
     if(firstSize>secondSize){
@@ -89,6 +121,7 @@ long *convertToArray(struct bignum* number){
     return answer;
 
 }
+
 void addDigit(char c, struct bignum* number) {
     number->digit[number->numberOfDigits]= c;
     number->numberOfDigits++;
@@ -110,7 +143,7 @@ void addDigit(char c, struct bignum* number) {
 void recCalcMult1(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result) {
 
     if (compare(*multiplier,factor) < 0){
-       return;
+        return;
     }
     else {
         struct bignum *newFactor = calcSumWithoutFree(factor, factor);
@@ -230,53 +263,57 @@ void recCalcMult2(struct bignum** multiplier, long *multiplied, long* factor, lo
     recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
 }
 */
-int isEqualZeroOrOne(const long *a, long aSize) {
-    int con;
-    if (a[1] != 1) {
-        con = -1;
+int isEqualZeroOrSign(struct bignum* multiplier,struct bignum* multiplied ) {
+    long multiplierNewSize = multiplier->numberOfDigits/9+1;
+    long multipliedNewSize = multiplied->numberOfDigits/9+1;
+    long* multiplierArr = convertToArray(multiplier);
+    long* multipliedArr = convertToArray(multiplier);
+    int con = 0;
+    for (long i = 1; con!=-1 && i <= multiplierNewSize; i++ ) {
+        if (multiplierArr[i] != 0)
+            con = -1;
     }
-    else if (a[1] != 0 ){
-        con = -1;
-    }
-    else {
-        if (a[1] == 1){
-            con = 1;
-        }
-        else {
+    if (con != 0 ){
             con = 0;
-        }
-        for (long i = 2; con!=-1 && i < aSize-1; i++ ){
-            if (a[i] != 0)
-                con = -1;
-        }
+            for (long i = 1; con!=-1 && i <= multipliedNewSize; i++ ){
+                if (multipliedArr[i] != 0)
+                    con = -1;
+            }
+
     }
+    if (con !=0){
+        con = (multiplied->sign) * (multiplier->sign);
+            multipliedArr[0]=1;
+            multiplied = convertTObignumWithoutFree(multipliedArr,multipliedNewSize);
+            multiplied->sign = 1;
+            multiplierArr[0]=1;
+            multiplier = convertTObignumWithoutFree(multiplierArr,multiplierNewSize);
+            multiplier->sign = 1;
+
+    }
+    free(multiplierArr);
+    free(multipliedArr);
     return con;
 }
-long *returnZeroOrOneArray(long eqZeroOrOne1,long eqZeroOrOne2, long sign) {
-    //check for cases of 0\1
-    long *finalAnswer = calloc(2, sizeof(long));
-    if (eqZeroOrOne1 == 0 || eqZeroOrOne2==0) {
-        finalAnswer[0] = sign;
-        finalAnswer[1] = 0;
-    } else if (eqZeroOrOne1 == 1 || eqZeroOrOne2 == 1) {
-        finalAnswer[0] = sign;
-        finalAnswer[1] = 1;
-    }
-    return finalAnswer;
+struct bignum* returnZeroArray(){
+    long *resultArr =  calloc(2, sizeof(long));
+    resultArr[0] = 1;
+    resultArr[1] = 0;
+    return convertTObignum(resultArr,2);
 }
-long returnSignOfCalc(const long *multiplied, const long *multiplier) {
-    if ( (multiplied[0] == -1 && multiplier[0] == 1) || (multiplied[0] == 1 && multiplier[0] == -1)  )
+/*long returnSignOfCalc(struct bignum  *multiplied, struct bignum *multiplier) {
+    if ( (multiplied->digit[0] == '-1' && multiplier->digit[0] == '1') || (multiplied->digit[0] == '1' && multiplier->digit[0] == '-1') )
         return -1;
     else
         return 1;
-}
+}*/
 /*long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max) {
     long **answer;
     long *finalAnswer;
     long sign;
     sign = returnSignOfCalc(multiplied, multiplier);
     long secEqZeroOrOne;
-    secEqZeroOrOne = isEqualZeroOrOne(multiplier, multiplierSize);
+    secEqZeroOrOne = isEqualZero(multiplier, multiplierSize);
     if (secEqZeroOrOne == 0 || secEqZeroOrOne == 1) {
         finalAnswer = returnZeroOrOneArray (secEqZeroOrOne, sign);
     }
@@ -297,15 +334,7 @@ long returnSignOfCalc(const long *multiplied, const long *multiplier) {
     }
     return finalAnswer;
 }*/
-long *sumTwoDimArray(long **twoDimArray, long multiplierSize, long max) {
-    long i;
-    long *finalArray;
-    finalArray = calloc((size_t) max, sizeof(long));
-    for ( i = 0; i < multiplierSize; i++ ){
-        addingTwoArrays(finalArray+1, twoDimArray[i], max, max, finalArray+1);
-    }
-    return finalArray;
-}
+
 void negateNumber(struct bignum *number) {
     number->sign=number->sign*(-1);
 }

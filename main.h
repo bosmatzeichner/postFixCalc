@@ -24,6 +24,7 @@ extern long arrangeCarry(long *cellToChange);
 
 long *convertToArray(struct bignum* number);
 struct bignum* convertTObignum(long array[],long size);
+struct bignum* convertTObignumWithoutFree(long array[],long size);
 void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize);
 extern void addingTwoArrays(const long first[],const long second[], long firstLength, long secondLength, long result[]);
 struct stack;
@@ -37,14 +38,13 @@ extern struct bignum* calcDiv(struct bignum* first,struct bignum* second);
 
 extern void execute_p(struct stack *s);
 extern void execute_c(struct stack *s);
-long *sumTwoDimArray(long **twoDimArray, long multiplierSize, long max);
 extern void subTwoArrays(long *bigger,const long *smaller, long max, long min, long *result);
 void recCalcMult1(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result);
 void recCalcMult2(struct bignum** multiplier, long *multiplied, long* factor, long** result, long multiplierNewSize,long multipliedNewSize, long factorNewSize);
-int isEqualZeroOrOne(const long *a, long aSize);
+int isEqualZeroOrSign(struct bignum* multiplier,struct bignum* multiplied );
+struct bignum* returnZeroArray();
 bool isGE(const long* first,const long* second, long firstSize, long secondSize);
-long *returnZeroOrOneArray(long eqZeroOrOne1,long eqZeroOrOne2, long sign) ;
-long returnSignOfCalc(const long *multiplied, const long *multiplier);
+long returnSignOfCalc(struct bignum *multiplied, struct bignum  *multiplier);
 //long *getFinalMult(long *multiplied, long *multiplier, long multipliedSize, long multiplierSize, long max);
 
 int compare(struct bignum *number1, struct bignum *number2);

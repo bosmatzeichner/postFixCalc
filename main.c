@@ -31,48 +31,44 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
       multiplied = multiplier;
       multiplier = tmp;
     }
-    long firstNewSize = first->numberOfDigits/9+1;
-    long secondNewSize = second->numberOfDigits/9+1;
-    long* firstArr = convertToArray(first);
-    long* secondArr = convertToArray(second);
-    long sign = returnSignOfCalc(firstArr,secondArr);
-    long isEqualZeroOrOne1 = isEqualZeroOrOne(firstArr,firstNewSize);
-    long isEqualZeroOrOne2 = isEqualZeroOrOne(secondArr,secondNewSize);
+    int sign = isEqualZeroOrSign(multiplier,multiplied);
 
-
- /*  if (isEqualZeroOrOne1 == 0 || isEqualZeroOrOne2==0) {
-       long *resultArr =  calloc(2, sizeof(long));
-       resultArr[0] = sign;
-       resultArr[1] = 0;
-       *result = convertTObignum(resultArr,2);
-       freeBignum(convertTObignum(firstArr,firstNewSize));
-       freeBignum(convertTObignum(secondArr,secondNewSize));
+    if (sign==0) {
+        *result = returnZeroArray();
+        freeBignum(multiplied);
+        freeBignum(multiplier);
    }
-   else if(isEqualZeroOrOne1 == 1 || isEqualZeroOrOne2==1){
-       if (isEqualZeroOrOne1 == 1) {
-           *result = convertTObignum(secondArr, secondNewSize);
-           freeBignum(convertTObignum(firstArr,firstNewSize));
-       }
-       else{
-           *result = convertTObignum(firstArr,firstNewSize);
-           freeBignum(convertTObignum(secondArr,secondNewSize));
-       }
-   }
-    else{    */
-
-     //  multiplied = convertTObignum(firstArr, (firstNewSize-1)*9);
-      // multiplier = convertTObignum(secondArr, secondNewSize);
+    else{
        struct bignum **multiplierPTR = calloc(1, sizeof(first));
        *multiplierPTR = multiplier;
+
        long *factor = calloc(2,sizeof(long));
        factor[0] = 1;
        factor[1] = 1;
-       struct bignum* factorPTR = convertTObignum(factor, 2);
+
+       struct bignum* factorPTR = convertTObignumWithoutFree(factor, 2);
        long *resultArr = calloc(2,sizeof(long));
        resultArr[0] = 1;
-       *result = convertTObignum(resultArr, 2);
-       recCalcMult1(multiplierPTR, multiplied, factorPTR, result );
-//    }
+       *result = convertTObignumWithoutFree(resultArr, 2);
+       recCalcMult1(multiplierPTR, multiplied, factorPTR, result);
+
+       if (sign == -1){
+           resultArr = convertToArray(*result);
+           resultArr[0] = -1;
+           long resultSize = (*result)->numberOfDigits/9+1;
+           *result = convertTObignumWithoutFree(resultArr, resultSize);
+           (*result)->sign = sign;
+       }
+        free(factor);
+        freeBignum(*multiplierPTR);
+        free(multiplierPTR);
+        free(resultArr);
+
+    }
+
+    freeBignum(multiplied);
+
+
     return *result;
 }
 
