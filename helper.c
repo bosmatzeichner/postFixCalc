@@ -236,8 +236,8 @@ int isEqualZeroOrSign(struct bignum** multiplier,struct bignum** multiplied ) {
 }
 struct bignum* returnZeroArray(){
     long *resultArr =  calloc(2, sizeof(long));
-    if(resultArr==NULL)
-        exit(-1);
+   // if(resultArr==NULL)
+   //     exit(-1);
     resultArr[0] = 1;
     resultArr[1] = 0;
     return convertTObignum(resultArr,2);

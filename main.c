@@ -34,7 +34,7 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
     int sign = isEqualZeroOrSign(&multiplier,&multiplied);
     if (sign==0) {
         *result = returnZeroArray();
-        freeBignum(multiplied);
+        //freeBignum(multiplied);
         freeBignum(multiplier);
     }
     else{
