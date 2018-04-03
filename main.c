@@ -74,13 +74,9 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
 
 struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
     struct bignum **result = calloc(1,sizeof(long));
-    struct bignum* toDivide = first;
-    struct bignum* divisor = second;
-    if (compare(toDivide,divisor) < 0 ) {
-        struct bignum* tmp = divisor;
-        divisor = toDivide;
-        toDivide = tmp;
-    }
+    struct bignum* toDivide = second;
+    struct bignum* divisor = first;
+
     int sign = isEqualZeroOrSign(&toDivide,&divisor);
     if (sign==0) {
         *result = returnZeroArray();
