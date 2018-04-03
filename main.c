@@ -39,7 +39,7 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
    }
     else{
 
-       struct bignum **multiplierPTR = calloc(1, sizeof(first));
+       struct bignum **multiplierPTR = calloc(1, sizeof(long)); /////
        *multiplierPTR = multiplier;
 
        long *factor = calloc(2,sizeof(long));
@@ -50,7 +50,7 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
        long *resultArr = calloc(2,sizeof(long));
        resultArr[0] = 1;
        *result = convertTObignumWithoutFree(resultArr, 2);
-       recCalcMult1(multiplierPTR, multiplied, factorPTR, result);
+       recCalcMult(multiplierPTR, multiplied, factorPTR, result);
         ((*result)->sign) = 1;
        if (sign == -1){
            resultArr = convertToArray(*result);
@@ -73,8 +73,51 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
 }
 
 struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
-    // printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
-    return first;
+    struct bignum **result = calloc(1,sizeof(long));
+    struct bignum* toDivide = first;
+    struct bignum* divisor = second;
+    if (compare(toDivide,divisor) < 0 ) {
+        struct bignum* tmp = divisor;
+        divisor = toDivide;
+        toDivide = tmp;
+    }
+    int sign = isEqualZeroOrSign(&toDivide,&divisor);
+    if (sign==0) {
+        *result = returnZeroArray();
+        freeBignum(divisor);
+        freeBignum(toDivide);
+    }
+    else{
+        struct bignum **toDividePTR = calloc(1, sizeof(long));
+        *toDividePTR = toDivide;
+        long *factor = calloc(2,sizeof(long));
+        factor[0] = 1;
+        factor[1] = 1;
+
+        struct bignum* factorPTR = convertTObignumWithoutFree(factor, 2);
+        long *resultArr = calloc(2,sizeof(long));
+        resultArr[0] = 1;
+        *result = convertTObignumWithoutFree(resultArr, 2);
+        recCalcDiv(toDividePTR, divisor, factorPTR, result);
+        ((*result)->sign) = 1;
+        if (sign == -1){
+            resultArr = convertToArray(*result);
+            resultArr[0] = -1;
+            long resultSize = (*result)->numberOfDigits/9+1;
+            *result = convertTObignumWithoutFree(resultArr, resultSize+1);
+            ((*result)->sign) = -1;
+        }
+        free(factor);
+        freeBignum(*toDividePTR);
+        free(toDividePTR);
+        free(resultArr);
+
+    }
+
+    freeBignum(divisor);
+
+
+    return *result;
 }
 struct bignum* calcSum(struct bignum* first,struct bignum* second) //toDo: pass the free comments to main or split function to sum and sum with freeing to able calcMult to work ok!
  {
@@ -186,7 +229,7 @@ int main() {
                     case 'c':
                         execute_c(stack);
                         break;
-                    case '0'...'9':
+                        case '0'...'9':
                         currbignum=malloc(sizeof(*currbignum));
                         currbignum->digit = malloc(sizeof(char)*MAX_SIZE);
                         currbignum->sign=1;
