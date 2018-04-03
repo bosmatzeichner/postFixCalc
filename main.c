@@ -80,7 +80,7 @@ struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
     int sign = isEqualZeroOrSign(&toDivide,&divisor);
     if (sign==0) {
         *result = returnZeroArray();
-        freeBignum(divisor);
+        //freeBignum(divisor);
         freeBignum(toDivide);
     }
     else{
