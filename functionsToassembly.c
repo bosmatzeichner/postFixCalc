@@ -67,7 +67,6 @@ void addingTwoArrays(const long bigger[], const long smaller[], long max, long m
 }
 void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum* factor, struct bignum** result) //toDo: moveToAssembly
 {
-
     if (compare(*toDivide,divisor) < 0){
         return;
     }

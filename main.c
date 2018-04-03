@@ -121,46 +121,17 @@ struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
 }
 struct bignum* calcSum(struct bignum* first,struct bignum* second) //toDo: pass the free comments to main or split function to sum and sum with freeing to able calcMult to work ok!
  {
-    long firstNewSize = first->numberOfDigits/9+1;
-    long secondNewSize = second->numberOfDigits/9+1;;
-    long max = secondNewSize;
-    long min = firstNewSize;
-    long* smaller = convertToArray(first);
-    long* bigger = convertToArray(second);
-    bool firstGreaterOrEqualtoSecond =compare(first,second)>0;
-    if(firstGreaterOrEqualtoSecond){//if first number size is smaller then the second
-        max=firstNewSize;
-        min = secondNewSize;
-        smaller = convertToArray(second);
-        bigger = convertToArray(first);
-    }
-    long *result= calloc((size_t)max+1, sizeof(long));
-
-    if(bigger[0]==smaller[0]) {
-        addingTwoArrays(bigger+1, smaller+1, max, min,result);
-        result[0]=bigger[0];
-    }
-    else{
-        subTwoArrays(bigger+1,smaller+1,max,min,result);
-        if(bigger[0]==-1){//if the bigger is negative
-            result[0]=-1;
-        }
-        else{
-            result[0]=1;
-        }
-    }
+    struct bignum* answer = calcSumWithoutFree(first,second);
     freeBignum(first);
     freeBignum(second);
-    free(bigger);
-    free(smaller);
-    struct bignum* answer = convertTObignum(result,max+1);
-//    free(result);
     return answer;
 }
 struct bignum* calcSub(struct bignum* first,struct bignum* second)
  {
-    negateNumber(first);
-    return calcSum(first,second);
+     struct bignum* answer= calcSubWithoutFree(first,second);
+     freeBignum(first);
+     freeBignum(second);
+     return answer;
 }
 
 
