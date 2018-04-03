@@ -140,48 +140,7 @@ void addDigit(char c, struct bignum* number) {
         number->numberOfDigits--;
 }
 
-void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum* factor, struct bignum** result) {
 
-    if (compare(*toDivide,divisor) < 0){
-        return;
-    }
-    else {
-        struct bignum *newFactor = calcSumWithoutFree(factor, factor);
-        struct bignum *newResult = calcSumWithoutFree(divisor, divisor);
-        recCalcDiv(toDivide, newResult, newFactor, result);
-        freeBignum(newFactor);
-        freeBignum(newResult);
-        if (compare(*toDivide,divisor) >= 0){
-            struct bignum *newToDivide = calcSubWithoutFree(divisor,*toDivide);
-            newResult = calcSumWithoutFree(factor,*result);
-            free(*result);
-            free(*toDivide);
-            *result = newResult;
-            *toDivide = newToDivide;
-        }
-    }
-}
-void recCalcMult(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result) {
-
-    if (compare(*multiplier,factor) < 0){
-        return;
-    }
-    else {
-        struct bignum *newFactor = calcSumWithoutFree(factor, factor);
-        struct bignum *newResult = calcSumWithoutFree(multiplied, multiplied);
-        recCalcMult(multiplier, newResult, newFactor, result);
-        freeBignum(newFactor);
-        freeBignum(newResult);
-        if (compare(*multiplier,factor) >= 0){
-            struct bignum *newMultiplier = calcSubWithoutFree(factor,*multiplier);
-            newResult = calcSumWithoutFree(multiplied,*result);
-            free(*result);
-            free(*multiplier);
-            *result = newResult;
-            *multiplier = newMultiplier;
-        }
-    }
-}
 struct bignum* calcSumWithoutFree(struct bignum* first,struct bignum* second) {
     long firstNewSize = first->numberOfDigits/9+1;
     long secondNewSize = second->numberOfDigits/9+1;;

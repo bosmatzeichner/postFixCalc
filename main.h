@@ -22,6 +22,8 @@ extern long getCarry(long number);
 extern long getResult(long carry);
 extern long arrangeCarry(long *cellToChange);
 
+
+
 long *convertToArray(struct bignum* number);
 struct bignum* convertTObignum(long array[],long size);
 struct bignum* convertTObignumWithoutFree(long array[],long size);
@@ -34,12 +36,12 @@ extern struct bignum* calcSum(struct bignum* first,struct bignum* second);
 extern struct bignum* calcSub(struct bignum* first,struct bignum* second);
 extern struct bignum* calcMult(struct bignum* first,struct bignum* second);
 extern struct bignum* calcDiv(struct bignum* first,struct bignum* second);
-
 extern void execute_p(struct stack *s);
 extern void execute_c(struct stack *s);
 extern void subTwoArrays(long *bigger,const long *smaller, long max, long min, long *result);
-void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum* factor, struct bignum** result);
-void recCalcMult(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result);
+extern void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum* factor, struct bignum** result);
+extern void recCalcMult(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result);
+
 int isEqualZeroOrSign(struct bignum** multiplier,struct bignum** multiplied );
 struct bignum* returnZeroArray();
 bool isGE(const long* first,const long* second, long firstSize, long secondSize);

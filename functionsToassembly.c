@@ -65,3 +65,46 @@ void addingTwoArrays(const long bigger[], const long smaller[], long max, long m
     }
     result[max]=result[max]+carry;
 }
+void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum* factor, struct bignum** result) //toDo: moveToAssembly
+{
+
+    if (compare(*toDivide,divisor) < 0){
+        return;
+    }
+    else {
+        struct bignum *newFactor = calcSumWithoutFree(factor, factor);
+        struct bignum *newResult = calcSumWithoutFree(divisor, divisor);
+        recCalcDiv(toDivide, newResult, newFactor, result);
+        freeBignum(newFactor);
+        freeBignum(newResult);
+        if (compare(*toDivide,divisor) >= 0){
+            struct bignum *newToDivide = calcSubWithoutFree(divisor,*toDivide);
+            newResult = calcSumWithoutFree(factor,*result);
+            free(*result);
+            free(*toDivide);
+            *result = newResult;
+            *toDivide = newToDivide;
+        }
+    }
+}
+void recCalcMult(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result) {
+
+    if (compare(*multiplier,factor) < 0){
+        return;
+    }
+    else {
+        struct bignum *newFactor = calcSumWithoutFree(factor, factor);
+        struct bignum *newResult = calcSumWithoutFree(multiplied, multiplied);
+        recCalcMult(multiplier, newResult, newFactor, result);
+        freeBignum(newFactor);
+        freeBignum(newResult);
+        if (compare(*multiplier,factor) >= 0){
+            struct bignum *newMultiplier = calcSubWithoutFree(factor,*multiplier);
+            newResult = calcSumWithoutFree(multiplied,*result);
+            free(*result);
+            free(*multiplier);
+            *result = newResult;
+            *multiplier = newMultiplier;
+        }
+    }
+}
