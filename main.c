@@ -31,14 +31,14 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
       multiplied = multiplier;
       multiplier = tmp;
     }
-    int sign = isEqualZeroOrSign(multiplier,multiplied);
-
+    int sign = isEqualZeroOrSign(&multiplier,&multiplied);
     if (sign==0) {
         *result = returnZeroArray();
         freeBignum(multiplied);
         freeBignum(multiplier);
    }
     else{
+
        struct bignum **multiplierPTR = calloc(1, sizeof(first));
        *multiplierPTR = multiplier;
 
@@ -51,13 +51,14 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
        resultArr[0] = 1;
        *result = convertTObignumWithoutFree(resultArr, 2);
        recCalcMult1(multiplierPTR, multiplied, factorPTR, result);
+        ((*result)->sign) = 1;
 
        if (sign == -1){
            resultArr = convertToArray(*result);
            resultArr[0] = -1;
            long resultSize = (*result)->numberOfDigits/9+1;
-           *result = convertTObignumWithoutFree(resultArr, resultSize);
-           (*result)->sign = sign;
+           *result = convertTObignumWithoutFree(resultArr, resultSize+1);
+           ((*result)->sign) = -1;
        }
         free(factor);
         freeBignum(*multiplierPTR);

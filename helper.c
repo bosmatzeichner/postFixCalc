@@ -201,73 +201,11 @@ struct bignum* calcSubWithoutFree(struct bignum* first,struct bignum* second) {
     negateNumber(first);
     return calcSumWithoutFree(first,second);
 }
-void recCalcMult2(struct bignum** multiplier, long *multiplied, long* factor, long** result, long multiplierNewSize,long multipliedNewSize, long factorNewSize) {
-
-
-    //struct bignum* multiplierBig = convertTObignum(*multiplier, multiplierNewSize);
-    struct bignum* factorBig = convertTObignum(factor, factorNewSize);
-
-    if (compare(*multiplier,factorBig) < 0){
-        *result = calloc(sizeof(long), 2 );
-        *result[0] = 1;
-    }
-    else {
-        //   *multiplier = convertToArray(multiplierBig);
-        factor = convertToArray(factorBig);
-        long size = factorNewSize;
-        long *newFactor = calloc(sizeof(long), size );
-        addingTwoArrays(factor+1, factor+1, size, size, newFactor);
-
-        size = multipliedNewSize;
-        long *newResult = calloc(sizeof(long), size );
-        addingTwoArrays(multiplied+1, multiplied+1, size,size, newResult);
-
-        recCalcMult2(multiplier, newResult, newFactor, result, multiplierNewSize, multipliedNewSize, factorNewSize);
-
-        /////////////////
-        //   free(newFactor);
-        //   free(newResult);
-////////////////multiplied wes deleted
-        factorBig = convertTObignum(factor, factorNewSize);
-        if (compare(*multiplier,factorBig) > 0) {
-            long *newResult = calloc(sizeof(long), size );
-            long *newMultiplier = calloc(sizeof(long), multipliedNewSize);
-            long *multiplierArray = convertToArray(*multiplier);
-            subTwoArrays(multiplierArray + 1, factor + 1, multipliedNewSize, factorNewSize, newMultiplier);
-            addingTwoArrays(multiplied + 1, *result + 1, multipliedNewSize, multipliedNewSize , newResult);
-            free(*result);
-            free(*multiplier);
-            *result = newResult;
-            *multiplier = convertTObignum(newMultiplier, multiplierNewSize);
-        }
-
-
-    }
-}
-/*void recCalcMult(long **twoDimArray, long counter, long *multiplied, long *multiplier, long multipliedSize, long multiplierSize){
-    //finished the calculating
-    if (counter == multiplierSize) {
-        return;
-    }
-    long carry = 0;
-    long index;
-
-    for (index = 0; index < multipliedSize ; index++){
-        //couter start by 1 couse the first long is the sign
-        twoDimArray[counter][counter + index + 1] =  multiplier [counter] * multiplied [index+1] + carry;
-        carry = arrangeCarry(& twoDimArray[counter][counter + index+1]);
-    }
-   // if (carry > 0){
-   //     twoDimArray[counter - 1][counter + index] = carry ;
-   // }
-    recCalcMult(twoDimArray, counter+1 , multiplied, multiplier, multipliedSize , multiplierSize);
-}
-*/
-int isEqualZeroOrSign(struct bignum* multiplier,struct bignum* multiplied ) {
-    long multiplierNewSize = multiplier->numberOfDigits/9+1;
-    long multipliedNewSize = multiplied->numberOfDigits/9+1;
-    long* multiplierArr = convertToArray(multiplier);
-    long* multipliedArr = convertToArray(multiplier);
+int isEqualZeroOrSign(struct bignum** multiplier,struct bignum** multiplied ) {
+    long multiplierNewSize = (*multiplier)->numberOfDigits/9+1;
+    long multipliedNewSize = (*multiplied)->numberOfDigits/9+1;
+    long* multiplierArr = convertToArray(*multiplier);
+    long* multipliedArr = convertToArray(*multiplier);
     int con = 0;
     for (long i = 1; con!=-1 && i <= multiplierNewSize; i++ ) {
         if (multiplierArr[i] != 0)
@@ -282,17 +220,17 @@ int isEqualZeroOrSign(struct bignum* multiplier,struct bignum* multiplied ) {
 
     }
     if (con !=0){
-        con = (multiplied->sign) * (multiplier->sign);
+        con = ((*multiplied)->sign) * ((*multiplier)->sign);
             multipliedArr[0]=1;
-            multiplied = convertTObignumWithoutFree(multipliedArr,multipliedNewSize);
-            multiplied->sign = 1;
+            *multiplied = convertTObignum(multipliedArr,multipliedNewSize+1);
+            (*multiplied)->sign = 1;
             multiplierArr[0]=1;
-            multiplier = convertTObignumWithoutFree(multiplierArr,multiplierNewSize);
-            multiplier->sign = 1;
+            *multiplier = convertTObignum(multiplierArr,multiplierNewSize+1);
+            (*multiplier)->sign = 1;
 
     }
-    free(multiplierArr);
-    free(multipliedArr);
+    //free(multiplierArr);
+    //free(multipliedArr);
     return con;
 }
 struct bignum* returnZeroArray(){
