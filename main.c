@@ -52,7 +52,6 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
        *result = convertTObignumWithoutFree(resultArr, 2);
        recCalcMult1(multiplierPTR, multiplied, factorPTR, result);
         ((*result)->sign) = 1;
-
        if (sign == -1){
            resultArr = convertToArray(*result);
            resultArr[0] = -1;
@@ -77,7 +76,8 @@ struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
     // printf("caculating div on %s and %s\n", s->firstBignum[s->size-1]->digit,s->firstBignum[s->size-2]->digit);
     return first;
 }
-struct bignum* calcSum(struct bignum* first,struct bignum* second) {
+struct bignum* calcSum(struct bignum* first,struct bignum* second) //toDo: pass the free comments to main or split function to sum and sum with freeing to able calcMult to work ok!
+ {
     long firstNewSize = first->numberOfDigits/9+1;
     long secondNewSize = second->numberOfDigits/9+1;;
     long max = secondNewSize;
@@ -114,7 +114,8 @@ struct bignum* calcSum(struct bignum* first,struct bignum* second) {
 //    free(result);
     return answer;
 }
-struct bignum* calcSub(struct bignum* first,struct bignum* second) {
+struct bignum* calcSub(struct bignum* first,struct bignum* second)
+ {
     negateNumber(first);
     return calcSum(first,second);
 }
