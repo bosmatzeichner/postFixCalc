@@ -202,25 +202,33 @@ struct bignum* calcSubWithoutFree(struct bignum* first,struct bignum* second) {
     negateNumber(first);
     return calcSumWithoutFree(first,second);
 }
-int isEqualZeroOrSign(struct bignum** multiplier,struct bignum** multiplied ) {
-    long multiplierNewSize = (*multiplier)->numberOfDigits/9+1;
-    long multipliedNewSize = (*multiplied)->numberOfDigits/9+1;
-    long* multiplierArr = convertToArray(*multiplier);
-    long* multipliedArr = convertToArray(*multiplied);
+int isEqualZeroOrSign(struct bignum** multiplier,struct bignum** multiplied, int multOrDiv ) {
+    long multiplierNewSize = (*multiplier)->numberOfDigits / 9 + 1;
+    long multipliedNewSize = (*multiplied)->numberOfDigits / 9 + 1;
+    long *multiplierArr = convertToArray(*multiplier);
+    long *multipliedArr = convertToArray(*multiplied);
     int con = 0;
-    for (long i = 1; con!=-1 && i <= multiplierNewSize; i++ ) {
+    int con2 = 0;
+
+    for (long i = 1; con != -1 && i <= multiplierNewSize; i++) {
         if (multiplierArr[i] != 0)
             con = -1;
     }
-    if (con != 0 ){
-            con = 0;
-            for (long i = 1; con!=-1 && i <= multipliedNewSize; i++ ){
-                if (multipliedArr[i] != 0)
-                    con = -1;
-            }
 
+    if (con != 0) {
+        con = 0;
+        con2 = 0;
+        for (long i = 1; con != -1 && i <= multipliedNewSize; i++) {
+            if (multipliedArr[i] != 0) {
+                con = -1;
+                con2 = -1;
+            }
+        }
     }
-    if (con !=0){
+    if (multOrDiv == 1 && con2 == 0) {
+        con = -2;
+    }
+    if (con ==-1){
         con = ((*multiplied)->sign) * ((*multiplier)->sign);
             multipliedArr[0]=1;
             *multiplied = convertTObignum(multipliedArr,multipliedNewSize+1);

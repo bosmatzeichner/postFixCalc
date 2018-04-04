@@ -7,7 +7,7 @@
 
 
 int compare(struct bignum *number1, struct bignum *number2) {//return |number1|-|number2| (sort-of)
-    if(number1->numberOfDigits>number2->numberOfDigits){
+    if(number1->numberOfDigits > number2->numberOfDigits){
         return 1;
     }
     else if(number1->numberOfDigits<number2->numberOfDigits)

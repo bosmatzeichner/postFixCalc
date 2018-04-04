@@ -31,11 +31,11 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
         multiplied = multiplier;
         multiplier = tmp;
     }
-    int sign = isEqualZeroOrSign(&multiplier,&multiplied);
+    int sign = isEqualZeroOrSign(&multiplier,&multiplied, 0);
     if (sign==0) {
         *result = returnZeroArray();
-        //freeBignum(multiplied);
         freeBignum(multiplier);
+        (*result) ->sign;
     }
     else{
 
@@ -77,11 +77,11 @@ struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
     struct bignum* toDivide = second;
     struct bignum* divisor = first;
 
-    int sign = isEqualZeroOrSign(&toDivide,&divisor);
-    if (sign==0) {
+    int sign = isEqualZeroOrSign(&toDivide,&divisor, 1);
+    if (sign==0 || sign == -2) {
         *result = returnZeroArray();
-        //freeBignum(divisor);
         freeBignum(toDivide);
+        (*result) ->sign =sign;
     }
     else{
         struct bignum **toDividePTR = calloc(1, sizeof(long));
@@ -95,8 +95,7 @@ struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
         resultArr[0] = 1;
         *result = convertTObignumWithoutFree(resultArr, 2);
         recCalcDiv(toDividePTR, divisor, factorPTR, result);
-        int zero = isEqualZeroOrSign(result,result);
-        if (zero == 0)
+        if (isEqualZeroOrSign(result,result,0) == 0)
             sign = 0;
         ((*result)->sign) = sign;
         if (sign == -1){
@@ -133,9 +132,13 @@ struct bignum* calcSub(struct bignum* first,struct bignum* second) {
 
 void execute_p(struct stack *s) {//TODO remove
 //    printNumber(peek(s));
-    if(peek(s)->sign==-1)
-        putchar('-');
-    printf("%s\n",peek(s)->digit);
+    if (peek(s)->sign ==-2)
+        printf("Error: division by zero!\n");
+    else {
+        if(peek(s)->sign==-1)
+            putchar('-');
+        printf("%s\n",peek(s)->digit);
+    }
 }
 void execute_c(struct stack *s) {
     freeStack(s);
@@ -179,7 +182,8 @@ int main() {
                     case '/':
                         first= pop(stack);
                         second= pop(stack);
-                        push(calcDiv(first,second),stack);
+                        struct bignum *result = calcDiv(first,second);
+                        push(result,stack);
                         break;
                     case '+':
                         first= pop(stack);
