@@ -175,8 +175,9 @@ struct bignum* calcSumWithoutFree(struct bignum* first,struct bignum* second) {
     if(firstGreaterOrEqualtoSecond){//if first number size is smaller then the second
         max=firstNewSize;
         min = secondNewSize;
-        smaller = convertToArray(second);
-        bigger = convertToArray(first);
+        long * tmp = smaller;
+        smaller = bigger;
+        bigger = tmp;
     }
     long *result= calloc((size_t)max+1, sizeof(long));
     if(result==NULL)

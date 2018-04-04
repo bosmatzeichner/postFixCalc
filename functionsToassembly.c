@@ -20,6 +20,7 @@ int compare(struct bignum *number1, struct bignum *number2) {//return |number1|-
     }
     return 0;
 }
+/*
 void subTwoArrays(long *bigger, const long *smaller, long max, long min,long *result) {
     long borrow=0;
     borrow=bigger[0]-smaller[0];
@@ -67,7 +68,7 @@ void addingTwoArrays(const long bigger[], const long smaller[], long max, long m
     }
     result[max]=result[max]+carry;
 }
-void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum* factor, struct bignum** result) //toDo: moveToAssembly
+*/void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum* factor, struct bignum** result) //toDo: moveToAssembly
 {
    if (compare(*toDivide,divisor) >= 0) {
         struct bignum *newFactor = calcSumWithoutFree(factor, factor);
@@ -84,7 +85,7 @@ void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum*
             *toDivide = newToDivide;
         }
     }
-}
+}/*
 void recCalcMult(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result) {
 
   if(compare(*multiplier,factor) >= 0) {
@@ -96,10 +97,10 @@ void recCalcMult(struct bignum** multiplier, struct bignum* multiplied, struct b
         if (compare(*multiplier,factor) >= 0){
             struct bignum *newMultiplier = calcSubWithoutFree(factor,*multiplier);
             newResult = calcSumWithoutFree(multiplied,*result);
-            free(*result);
-            free(*multiplier);
+            freeBignum(*result);
+            freeBignum(*multiplier);
             *result = newResult;
             *multiplier = newMultiplier;
         }
     }
-}
+}*/
