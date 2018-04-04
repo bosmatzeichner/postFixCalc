@@ -87,10 +87,7 @@ void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum*
 }
 void recCalcMult(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result) {
 
-  /*  if (compare(*multiplier,factor) < 0){
-        return;
-    }
-    */if(compare(*multiplier,factor) >= 0) {
+  if(compare(*multiplier,factor) >= 0) {
         struct bignum *newFactor = calcSumWithoutFree(factor, factor);
         struct bignum *newResult = calcSumWithoutFree(multiplied, multiplied);
         recCalcMult(multiplier, newResult, newFactor, result);

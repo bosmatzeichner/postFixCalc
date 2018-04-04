@@ -23,7 +23,7 @@ struct bignum * pop(struct stack *s) {
 }
 // meir advice - multiply with binary counter
 struct bignum* calcMult(struct bignum* first,struct bignum* second) {
-    struct bignum **result = calloc(1,sizeof(long));
+    struct bignum **result =calloc(1, sizeof(long));
     struct bignum* multiplier = first;
     struct bignum* multiplied = second;
     if (compare(multiplier,multiplied) > 0 ) {
@@ -61,7 +61,7 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
         }
         free(factor);
         freeBignum(*multiplierPTR);
-        free(multiplierPTR);
+        free(multiplierPTR); //free multiplier
         free(resultArr);
 
     }
@@ -95,7 +95,10 @@ struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
         resultArr[0] = 1;
         *result = convertTObignumWithoutFree(resultArr, 2);
         recCalcDiv(toDividePTR, divisor, factorPTR, result);
-        ((*result)->sign) = 1;
+        int zero = isEqualZeroOrSign(result,result);
+        if (zero == 0)
+            sign = 0;
+        ((*result)->sign) = sign;
         if (sign == -1){
             resultArr = convertToArray(*result);
             resultArr[0] = -1;
