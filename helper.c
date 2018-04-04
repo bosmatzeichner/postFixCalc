@@ -228,9 +228,10 @@ int isEqualZeroOrSign(struct bignum** multiplier,struct bignum** multiplied, int
                 con2 = -1;
             }
         }
-    }
-    if (multOrDiv == 1 && con2 == 0) {
+
+    if (multOrDiv == 1 && con2 == 0 && con==0) {
         con = -2;
+        }
     }
     if (((*multiplier)->sign == -2) ||((*multiplied)->sign == -2)){
         con = -2;
