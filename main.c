@@ -71,7 +71,6 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
 
     return *result;
 }
-
 struct bignum* calcDiv(struct bignum* first,struct bignum* second) {
     struct bignum **result = calloc(1,sizeof(long));
     struct bignum* toDivide = second;
@@ -135,6 +134,7 @@ void execute_p(struct stack *s) {//TODO remove
     if (peek(s)->sign ==-2) {
         printf("Error: division by zero!\n");
         struct bignum *result = pop(s);
+        freeBignum(result);
     } else{
         if(peek(s)->sign==-1)
             putchar('-');

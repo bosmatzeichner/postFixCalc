@@ -170,6 +170,7 @@ struct bignum* calcSumWithoutFree(struct bignum* first,struct bignum* second) {
     long min = firstNewSize;
     long* smaller = convertToArray(first);
     long* bigger = convertToArray(second);
+    bool error = ((first)->sign==-2 || (second)->sign==-2);
     bool firstGreaterOrEqualtoSecond =compare(first,second)>0;
     if(firstGreaterOrEqualtoSecond){//if first number size is smaller then the second
         max=firstNewSize;
@@ -196,6 +197,9 @@ struct bignum* calcSumWithoutFree(struct bignum* first,struct bignum* second) {
     free(bigger);
     free(smaller);
     struct bignum* answer = convertTObignum(result,max+1);
+    if (error){
+        answer->sign = -2;
+    }
     return answer;
 }
 struct bignum* calcSubWithoutFree(struct bignum* first,struct bignum* second) {
