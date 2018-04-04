@@ -228,6 +228,10 @@ int isEqualZeroOrSign(struct bignum** multiplier,struct bignum** multiplied, int
     if (multOrDiv == 1 && con2 == 0) {
         con = -2;
     }
+    if (((*multiplier)->sign == -2) ||((*multiplied)->sign == -2)){
+        con = -2;
+    }
+
     if (con ==-1){
         con = ((*multiplied)->sign) * ((*multiplier)->sign);
             multipliedArr[0]=1;

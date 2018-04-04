@@ -32,10 +32,10 @@ struct bignum* calcMult(struct bignum* first,struct bignum* second) {
         multiplier = tmp;
     }
     int sign = isEqualZeroOrSign(&multiplier,&multiplied, 0);
-    if (sign==0) {
+    if (sign==0 || sign == -2) {
         *result = returnZeroArray();
         freeBignum(multiplier);
-        (*result) ->sign;
+        (*result) ->sign =sign;
     }
     else{
 
@@ -132,9 +132,10 @@ struct bignum* calcSub(struct bignum* first,struct bignum* second) {
 
 void execute_p(struct stack *s) {//TODO remove
 //    printNumber(peek(s));
-    if (peek(s)->sign ==-2)
+    if (peek(s)->sign ==-2) {
         printf("Error: division by zero!\n");
-    else {
+        struct bignum *result = pop(s);
+    } else{
         if(peek(s)->sign==-1)
             putchar('-');
         printf("%s\n",peek(s)->digit);
