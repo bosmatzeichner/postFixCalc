@@ -68,7 +68,7 @@ void addingTwoArrays(const long bigger[], const long smaller[], long max, long m
     }
     result[max]=result[max]+carry;
 }
-*/void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum* factor, struct bignum** result) //toDo: moveToAssembly
+*//*void recCalcDiv(struct bignum** toDivide, struct bignum* divisor, struct bignum* factor, struct bignum** result) //toDo: moveToAssembly
 {
    if (compare(*toDivide,divisor) >= 0) {
         struct bignum *newFactor = calcSumWithoutFree(factor, factor);
@@ -85,7 +85,7 @@ void addingTwoArrays(const long bigger[], const long smaller[], long max, long m
             *toDivide = newToDivide;
         }
     }
-}
+}*/
 /*void recCalcMult(struct bignum** multiplier, struct bignum* multiplied, struct bignum* factor, struct bignum** result) {
 
   if(compare(*multiplier,factor) >= 0) {
