@@ -5,7 +5,7 @@
 //// Created by hod on 30/03/18.
 ////
 
-
+/*
 int compare(struct bignum *number1, struct bignum *number2) {//return |number1|-|number2| (sort-of)
     if(number1->numberOfDigits > number2->numberOfDigits){
         return 1;

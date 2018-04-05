@@ -80,7 +80,7 @@ section .text
     global arrangeCarry
     global addingTwoArrays
     global subTwoArrays
-    extern compare
+    global compare
     global recCalcMult
 getCarry:
     push rbp ; backup RBP
@@ -252,6 +252,42 @@ subTwoArrays:
         mov rsp, rbp ; move RBP to RSP
         pop rbp ; restore old RBP
         ret
+
+compare:
+    push rbp ; backup RBP
+    mov rbp, rsp
+    sub rsp, 32             ; giving rsp the space it needs for the parameters
+    mov qword [rbp-16], A0  ; rbp-16 = pointer to number1
+    mov qword [rbp-24], A1  ; rbp-24 = pointer to number2
+    mov rax,qword [A1+16]        ; rax = number2->numberOfDigits
+    mov rdx, qword [A0+16]      ; rdx = number1->numberOfDigits
+    cmp rdx,rax           ; if (number1->numberOfDigits>number2->numberOfDigits)
+    jg .retTrue                ; return 1
+    jl .retFalse               ; return -1
+    mov rcx, rax                ; moving number of digits to rcx as counter
+    mov rdi,0                  ; giving rdi the inc size for the loop
+    .loop:
+        mov rax, qword [rbp-16] ; rax = &number1
+        mov rax, qword [rax+24] ; rax = number->digits
+        mov rax, qword [rax +rdi*8] ; rax = number1->digits[i]
+        mov rdx, qword [rbp-24] ; rdx = &number2
+        mov rdx, qword [rdx+24] ; rdx = number2->digits
+        mov rdx, qword [rdx+rdi*8]  ; rdx = number2->digit[i]
+        cmp rdx,rax           ; if (number1->digits[i]>number2->digit[i])
+        jg .retTrue                ; return 1
+        jl .retFalse               ; return -1
+        loop .loop
+    mov rax,0
+    jmp .return
+    .retTrue:
+        mov rax, 1      ; return 1
+        jmp .return
+    .retFalse:
+        mov rax, -1     ; return -1
+    .return:
+        mov rsp, rbp ; move RBP to RSP
+        pop rbp ; restore old RBP
+        ret
         
 recCalcMult:
     push rbp ; backup RBP
@@ -260,77 +296,78 @@ recCalcMult:
     mov qword [rbp-16], A0  ; rbp-16 = pointer to pointer to multiplier
     mov qword [rbp-24], A1  ; rbp-24 = pointer to multiplied
     mov qword [rbp-32], A2 ; rbp-32 = pointer to factor A2-rdx
-    mov qword [rbp-40], A3 ; rbp-40 = pointer to pointer to result End OF PARAMETERS
+    mov qword [rbp-40], A3 ; rbp-40 = pointer to pointer to result    ;;;;;;;;End OF PARAMETERS
     mov rax, qword [rbp-16] ; move to rax **multiplier
     mov rax, qword [rax] ; move to rax *multiplier
-    mov A2, qword [rbp-32]; A2 <- *factor 
-    mov A1, A2 ; *factor
-    mov A0,rax ; *multiplier 
+    mov rdx, qword [rbp-32]; A2 <- *factor 
+    mov rsi, rdx ; *factor
+    mov rdi,rax ; *multiplier 
     call compare ; compare factorA1 and multiplierA0
     cmp rax,0
     jb .return    ;;;;;;;if condition (multipier<=factor)
-    mov A2,[rbp-32]; A2 <-*factor
+    mov rdx,[rbp-32]; A2 <-*factor
     mov rax, [rbp-32] ; rax <-*factor
-    mov A1, A2 ; A1 <-factor
-    mov A0, rax; A0 <-factor
+    mov rsi, rdx ; A1 <-factor
+    mov rdi, rax; A0 <-factor
     call calcSumWithoutFree ; with A0, A1
     mov qword [rbp-56], rax ; rax <-*newfactor    ;;;;;;;;;;;;;;;;
-    mov A2,qword [rbp-32]; A2 <-*multiplied
+    mov rdx,qword [rbp-32]; A2 <-*multiplied
     mov rax, qword [rbp-32] ; rax <-*multiplied
-    mov A1, A2 ; A1 <-multiplied
-    mov A0, rax; A0 <-multiplied
+    mov rsi, rdx ; A1 <-multiplied
+    mov rdi, rax; A0 <-multiplied
     call calcSumWithoutFree ; with A0, A1
     mov qword [rbp-48], rax ; rbp-48 = newResult<-rax= SumOf2Multiplied     ;;;;;;;;;;;;;;
-    mov A3,qword [rbp-40] ; pointer to pointer to result
-    mov A2,qword [rbp-56] ; rbp-52 = newFactor
-    mov A1,qword [rbp-48]; newResult= new multiplied
+    mov rcx,qword [rbp-40] ; pointer to pointer to result
+    mov rdx,qword [rbp-56] ; rbp-52 = newFactor
+    mov rsi,qword [rbp-48]; newResult= new multiplied
     mov rax,qword [rbp-16] ; double pointer to multiplier
-    mov  A0, rax ; A0<-double pointer to multiplier
+    mov  rdi, rax ; A0<-double pointer to multiplier
     call recCalcMult ; to the next recursive call    ;;;;;;;;;;;;;;;
     mov rax, qword [rbp-56] ; newFactor
-    mov A0, rax ;  
+    mov rdi, rax ;  
     call freeBignum ;free newFactor
     mov rax, qword [rbp-48] ; newResult (twiceMultiplied)
-    mov A0, rax
+    mov rdi, rax
     call freeBignum ; free newResult    ;;;;;;;;;;;;
     mov rax, qword [rbp-16] ;  rax<- ** multiplier 
     mov rax, qword[rax] ; rax <- *multiplier
-    mov A2, qword[rbp-32] ; A2(rdx) <- *factor
-    mov A1, A2 ; A1(rsi)<- A1<-*factor
-    mov A0, rax ; A0<- *multipier
+    mov rdx, qword[rbp-32] ; A2(rdx) <- *factor
+    mov rsi, rdx ; A1(rsi)<- A1<-*factor
+    mov rdi, rax ; A0<- *multipier
     call compare ; compare factorA1 and multiplierA0
     cmp rax,0
     jb .return    ;;;;;;;;;;;;;if condition (multipier<=factor)
     mov rax, qword[rbp-16] ; rax<-**multiplier
-    mov A2, qword[rax] ; A2=rdx
+    mov rdx, qword[rax] ; A2=rdx
     mov rax, qword[rbp-32] ; rax <- *factor
-    mov A1, A2; multipier 
-    mov A0, rax ; factor as prameter
+    mov rsi, rdx; multipier 
+    mov rdi, rax ; factor as prameter
     call calcSubWithoutFree ; sub A1-A0
     mov qword[rbp-64], rax  ; save sub to rbp-64
     ;;;;;rest of multiplier
     mov rax, qword[rbp-40] ; rax<-**result
-    mov A2, qword[rax] ; A2 <-*result
+    mov rdx, qword[rax] ; A2 <-*result
     mov rax, qword[rbp-24] ; rax<-multiplied
-    mov A1, A2 ; A1<-multiplied
-    mov A0, rax ; A0<-*result
+    mov rsi, rdx ; A1<-multiplied
+    mov rdi, rax ; A0<-*result
     call calcSumWithoutFree ; sum (multiplied, result)
     mov qword[rbp-8], rax ; save sum to rbp-8    ;;;;;;;;;;;;;;the new result    ;free prev result and multiplier
     mov rax, qword[rbp-40] ; rax<-**result
     mov rax, qword[rax] ; rax<-*result
-    mov A0, rax ; ready to be deleted
+    mov rdi, rax ; ready to be deleted
     call freeBignum    ;;;;;;;;;;;;;;;
     mov rax, qword[rbp-16] ; rax<-**multiplier
     mov rax, qword[rax] ; rax<-*multipier
-    mov A0, rax ; ready to be deleted
+    mov rdi, rax ; ready to be deleted
     call freeBignum     ;;;;;;;;;;;    ; save the new parameters so that in returning to the previous recursive call they will be updated
     mov rax, qword [rbp-40] ; **result
-    mov A2, qword [rbp-8] ; the new *result
-    mov qword[rax], A2    ;;;;;;;;;;
+    mov rdx, qword [rbp-8] ; the new *result
+    mov qword[rax], rdx    ;;;;;;;;;;
     mov rax, qword [rbp-16] ; **result
-    mov A2, qword [rbp-64] ; the new result
-    mov qword[rax], A2 ; the new *multiplier    ;;;;;;;;;;
-        .return: 
+    mov rdx, qword [rbp-64] ; the new result
+    mov qword[rax], rdx ; the new *multiplier    ;;;;;;;;;;
+    jmp .return
+       .return: 
             mov rsp, rbp ; move RBP to RSP
             pop rbp ; restore old RBP
             ret
