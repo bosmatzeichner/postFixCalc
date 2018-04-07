@@ -21,7 +21,6 @@ struct bignum * pop(struct stack *s) {
     return poped;
 
 }
-// meir advice - multiply with binary counter
 struct bignum* calcMult(struct bignum* first,struct bignum* second) {
     struct bignum **result =calloc(1, sizeof(long));
     struct bignum* multiplier = first;
